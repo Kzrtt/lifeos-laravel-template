@@ -1,0 +1,25 @@
+{
+  "name": "resumo_financeiro",
+  "description": "Panorama financeiro de um mês (ou comparação de até 12 meses) já AGREGADO com as mesmas regras da tela de Finanças do LifeOS -- use esta tool para qualquer pergunta sobre quanto entrou, saiu, sobrou ou está devendo, em vez de somar linhas de search_movimentacoes (somar linhas cruas conta a compra no crédito e o pagamento da fatura duas vezes). O nome da movimentação É a categoria (não há outro campo); nomes são agrupados sem acento, caixa ou apelido. corre e cogumelo são rateios: a Entrada é a parte dos amigos, não renda. Campos: saidas_caixa = o que saiu do caixa (sem crédito); saidas_com_credito = todas as saídas, INCLUSIVE pagamento de fatura, NÃO mede consumo; consumo_mes = o gasto do mês pela data da compra, sem pagamento de fatura e menos a parte dos amigos nos rateios (use este pra 'quanto gastei'); variavel_mes = consumo_mes menos compromissos; saldo = saldo_abertura + variacao_mes (data futura conta nos totais, não no saldo); fatura_deste_mes = compras no crédito do mês anterior que fecham agora; fatura_projetada = compras no crédito deste mês. parcial = mês corrente, futuro = mês ainda não começado; os dois e os meses antes de inicio_dados ficam fora das médias. entradas_proprias e entradas_por_nome = sem rateios; rateios = entrou, saiu e custo_dono por nome. compromissos / renda_recorrente: com fonte=cadastro, vêm das recorrências que o usuário cadastrou em Finanças (valor fixo ou faixa valor_min/valor_max; valor_tipico = meio da faixa) e o que a heurística acha fora do cadastro vem em sugestoes, fora das contas (vale por direção); com fonte=heuristica, são os nomes presentes em todos os 3 últimos meses completos, até 2x por mês (janela_incompleta no começo dos dados, que usa a janela do primeiro mês com janela cheia: janela_emprestada_de; valor típico = mediana, na renda o mês mais recente). pct_renda em %. sinais = picos de gasto variável (apos_entrada), tickets_repetidos, pontuais (>= 200 com nome novo, nunca compromisso) e consumo_base (consumo sem pontuais). ritmo (mês corrente) = variável até hoje contra a média da janela no mesmo dia (desvio_pct); toda média e comparação é sem pontuais, só fechamento_projetado inclui os pontuais já lançados. por_dia = consumo e variavel de cada dia (data YYYY-MM-DD), com as regras de consumo_mes e variavel_mes (com pontuais), do dia 1 ao fim do mês, ou até hoje no mês corrente. por_nome (mês único) ou comparativo_por_nome na raiz (intervalo). projecao = os 2 meses seguintes ao atual: livre_para_variavel e livre_por_dia, com detalhe e premissas; com faixa no cadastro, cenarios.pessimista/otimista ao lado do provável. Sem parâmetros, resume o mês atual.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "mes": {
+        "type": "string",
+        "description": "Um mês, YYYY-MM."
+      },
+      "de": {
+        "type": "string",
+        "description": "Primeiro mês de um intervalo, YYYY-MM (use com ate)."
+      },
+      "ate": {
+        "type": "string",
+        "description": "Último mês do intervalo, YYYY-MM (máx. 12 meses)."
+      },
+      "incluir_movimentacoes": {
+        "type": "boolean",
+        "description": "Anexa a cada mês lista_movimentacoes (colunas id, data, nome, valor, direcao, meio, marca; o id serve pro update_movimentacao). Máx. 3 meses. Padrão false."
+      }
+    }
+  }
+}

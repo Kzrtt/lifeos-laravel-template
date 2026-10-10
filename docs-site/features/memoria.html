@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifeOS · Memória de longo prazo</title>
+<meta name="description" content="O que uma IA aprende sobre você, guardado no LifeOS e não no cliente — qualquer harness lê e escreve.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%2308090b'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%2357b8c4' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..600;1,400&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-view="business">
+<header class="site-nav">
+  <a class="brand" href="../index.html"><span class="mark" aria-hidden="true"></span> LifeOS · Mapa do Sistema</a>
+  <span class="crumbs"><a href="../index.html">index</a><span class="sep">/</span>features<span class="sep">/</span>memoria</span>
+</header>
+<div class="wrap"><div class="page-head"><div class="kicker">Contexto · módulo memoria</div>
+<h1>Memória de longo prazo</h1><p class="lede">O que uma IA aprende sobre você, guardado no LifeOS e não no cliente — qualquer harness lê e escreve.</p>
+<div class="meta"><span class="status status--built">✅ implementado</span><span class="tag">MCP</span><span class="tag">índice</span><span class="tag">registros</span></div>
+<div class="view-switch" role="group" aria-label="Visão">
+<button type="button" data-view="business" aria-pressed="true">Regra de negócio</button>
+<button type="button" data-view="code" aria-pressed="false">Código</button></div></div>
+<div class="prose">
+<div class="view-business"><h2>O problema</h2><p>O que uma IA aprende (preferências, contexto de projetos, correções) vivia na memória do próprio cliente; trocar de ferramenta ou de modelo perdia tudo.</p><h2>O modelo: índice + registros</h2><ol class="rules"><li>Uma <strong>memória</strong> é um tema: título (até 120, único sem diferenciar caixa e espaços — <code>titulo_duplicado</code>), descrição curta (até 400) e categoria (Perfil, Preferências, Projetos, Referências, Vida — editáveis em Tags).</li><li>A <strong>descrição é o índice</strong>: é o que o modelo vê antes de abrir a memória, então precisa bastar para decidir se vale abrir.</li><li>O conteúdo são <strong>registros</strong> datados (até 8000 caracteres), com a <em>origem</em> de quem escreveu (<code>manual</code>, <code>claude-code</code>, <code>claude.ai</code>…). Crescem por acréscimo — a data deixa o modelo desconfiar de um fato antigo.</li><li>Qualquer escrita num registro atualiza a memória-mãe: “atualizada em” reflete o último fato, não só o último rename.</li><li>Apagar a memória apaga seus registros.</li><li>Pelo MCP: criar/atualizar memória, acrescentar/corrigir registro, listar e abrir. O <code>initialize</code> devolve o índice das memórias como instruções.</li></ol></div>
+<div class="view-code"><h2>Onde vive no código</h2><div class="table-scroll"><table class=""><thead><tr><th>Item</th><th>Valor</th></tr></thead><tbody><tr><td>Módulo</td><td><code>app-modules/memoria</code></td></tr><tr><td>Tabelas</td><td><code>lifeos_memorias</code>, <code>lifeos_memoria_registros</code></td></tr><tr><td>Endpoints</td><td><code>POST /functions/v1/lifeos-memorias</code></td></tr><tr><td>Actions</td><td><code>ListarMemorias</code>, <code>CriarMemoria</code>, <code>AtualizarMemoria</code>, <code>ExcluirMemoria</code>, <code>CriarRegistro</code>, <code>AtualizarRegistro</code>, <code>ExcluirRegistro</code></td></tr></tbody></table></div></div>
+</div><div class="pager"><a href="citacoes.html">← Citações</a><a href="renuncias.html">Renúncias →</a></div></div>
+<footer class="site-footer">LifeOS · v0.1.0 · atualizado 2026-10-08</footer>
+<script src="../assets/site-chrome.js" defer></script><script src="../assets/feature-view.js" defer></script>
+</body>
+</html>

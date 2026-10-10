@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifeOS · Citações</title>
+<meta name="description" content="Uma frase sorteada a cada abertura do hub, com a lista completa atrás de um clique.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%2308090b'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%2357b8c4' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..600;1,400&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-view="business">
+<header class="site-nav">
+  <a class="brand" href="../index.html"><span class="mark" aria-hidden="true"></span> LifeOS · Mapa do Sistema</a>
+  <span class="crumbs"><a href="../index.html">index</a><span class="sep">/</span>features<span class="sep">/</span>citacoes</span>
+</header>
+<div class="wrap"><div class="page-head"><div class="kicker">Contexto · módulo citacoes</div>
+<h1>Citações</h1><p class="lede">Uma frase sorteada a cada abertura do hub, com a lista completa atrás de um clique.</p>
+<div class="meta"><span class="status status--built">✅ implementado</span><span class="tag">banner</span><span class="tag">sorteio</span></div>
+<div class="view-switch" role="group" aria-label="Visão">
+<button type="button" data-view="business" aria-pressed="true">Regra de negócio</button>
+<button type="button" data-view="code" aria-pressed="false">Código</button></div></div>
+<div class="prose">
+<div class="view-business"><h2>O problema</h2><p>Uma tabela de citações que funciona diferente das outras listas: a área não mostra a lista, mostra <em>uma</em> citação.</p><h2>As regras</h2><ol class="rules"><li>Uma citação é um texto (até 2000 caracteres) e um autor (até 200).</li><li>O sorteio roda a cada abertura do hub e a cada ↻; com mais de uma citação, <strong>nunca repete</strong> a que já está na tela.</li><li>Editar atualiza o texto no lugar, sem re-sortear; excluir a que está no banner sorteia outra.</li><li><code>*trecho*</code> no texto vira destaque na cor de acento.</li><li>Citações são exceção ao cache “eterno até ↻”: o hub as busca a cada abertura, porque também chegam pelo MCP.</li><li>Sem nenhuma citação, o banner vira um convite e o clique abre direto o formulário.</li></ol></div>
+<div class="view-code"><h2>Onde vive no código</h2><div class="table-scroll"><table class=""><thead><tr><th>Item</th><th>Valor</th></tr></thead><tbody><tr><td>Módulo</td><td><code>app-modules/citacoes</code></td></tr><tr><td>Tabelas</td><td><code>lifeos_citacoes</code></td></tr><tr><td>Endpoints</td><td><code>POST /functions/v1/lifeos-citacoes</code></td></tr><tr><td>Actions</td><td><code>ListarCitacoes</code>, <code>BuscarCitacoes</code>, <code>CriarCitacao</code>, <code>AtualizarCitacao</code>, <code>ExcluirCitacao</code></td></tr></tbody></table></div></div>
+</div><div class="pager"><a href="manifestacoes.html">← Manifestações</a><a href="memoria.html">Memória de longo prazo →</a></div></div>
+<footer class="site-footer">LifeOS · v0.1.0 · atualizado 2026-10-08</footer>
+<script src="../assets/site-chrome.js" defer></script><script src="../assets/feature-view.js" defer></script>
+</body>
+</html>

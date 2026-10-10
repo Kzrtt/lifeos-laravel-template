@@ -1,0 +1,25 @@
+{
+  "name": "search_renuncias",
+  "description": "Lê as renúncias do usuário: hábitos que ele cortou e há quanto tempo está sem cada um. Para cada renúncia devolve desde quando (a última vez), o tempo corrido, os marcos de tempo já conquistados (1 dia, 3, 7, 14, 21, 1 mês, 2, 3, 6, 9 meses, 1, 2, 3, 5, 10 anos — mês = 30 dias, ano = 365), o próximo marco com quanto falta e a data em que chega, o nº de recaídas e o recorde. Uma renúncia ARQUIVADA não conta tempo: o usuário parou de acompanhar (em geral voltou ao hábito), então ela vem sem tempo corrido nem marcos — só recaídas e recorde do histórico. Nunca diga que ele está há X tempo sem um hábito arquivado. Sem filtros devolve as ativas, da mais antiga para a mais recente. Só leitura: criar, editar e registrar recaída é pela tela do LifeOS.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "nome": {
+        "type": "string",
+        "description": "Trecho do nome da renúncia (não precisa ser exato)."
+      },
+      "incluir_arquivadas": {
+        "type": "boolean",
+        "description": "Inclui as arquivadas (padrão false)."
+      },
+      "historico": {
+        "type": "boolean",
+        "description": "Inclui a lista de tentativas anteriores (início, fim, duração) de cada renúncia (padrão false)."
+      },
+      "limit": {
+        "type": "integer",
+        "description": "Máximo de resultados (padrão 20, máximo 50)."
+      }
+    }
+  }
+}

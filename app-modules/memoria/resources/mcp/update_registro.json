@@ -1,0 +1,21 @@
+{
+  "name": "update_registro",
+  "description": "Corrige o texto de um registro existente (id vem de get_memoria). SUBSTITUIÇÃO: envie o TEXTO INTEIRO e final do registro, nunca só o trecho que mudou. A data original do registro se mantém. Excluir memórias ou registros não é possível por aqui -- só pela tela do LifeOS.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "description": "id do registro (retornado por get_memoria)."
+      },
+      "texto": {
+        "type": "string",
+        "description": "Texto INTEIRO e final do registro."
+      }
+    },
+    "required": [
+      "id",
+      "texto"
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "name": "create_evento",
+  "description": "Cria um novo evento no calendário do LifeOS. date_fim é opcional (só pra eventos de vários dias -- quando enviado, não pode ser anterior a date). projeto é opcional -- nem todo evento pertence a um projeto.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Nome do evento."
+      },
+      "date": {
+        "type": "string",
+        "description": "Data de início, YYYY-MM-DD."
+      },
+      "date_fim": {
+        "type": "string",
+        "description": "Data final YYYY-MM-DD, só para eventos de vários dias (opcional)."
+      },
+      "tipo": {
+        "type": "string",
+        "enum": [
+          "@@evento_tipo@@"
+        ],
+        "description": "Tipo do evento."
+      },
+      "projeto": {
+        "type": "string",
+        "description": "Nome (ou trecho único) de um projeto vinculado (opcional)."
+      }
+    },
+    "required": [
+      "name",
+      "date",
+      "tipo"
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifeOS · Contrato da API</title>
+<meta name="description" content="O contrato congelado entre o front estático e o backend Laravel.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%2308090b'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%2357b8c4' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..600;1,400&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="site-nav">
+  <a class="brand" href="index.html"><span class="mark" aria-hidden="true"></span> LifeOS · Mapa do Sistema</a>
+  <span class="crumbs"><a href="index.html">index</a><span class="sep">/</span>contrato-api</span>
+</header>
+<div class="wrap"><div class="page-head"><div class="kicker">Integração</div><h1>Contrato da API</h1>
+<p class="lede">O front HTML/JS foi copiado byte a byte do LifeOS original; o backend fala exatamente o contrato que ele já esperava. Não há SPA a construir: este contrato é o que o front usa.</p>
+<div class="meta"><span class="status status--built">✅ implementado</span></div></div><div class="prose">
+<h2>Forma da chamada</h2>
+<pre><code>POST /functions/v1/lifeos-&lt;módulo&gt;
+Content-Type: application/json
+
+{ "token": "&lt;senha&gt;", "action": "query | create | update | delete | …", …campos }
+
+200  → { "ok": true, …dados }
+4xx  → { "ok": false, "error": "codigo_curto" }</code></pre>
+<ol class="rules"><li>O <strong>mesmo contrato</strong> vale para todo módulo: uma rota por módulo, a operação vem em <code>action</code>.</li><li><code>token</code> vai no corpo, não em header. 401 / <code>unauthorized</code> quando a senha não confere; o gate de cada página no front é só UX — a fronteira real é o servidor.</li><li>Erros de negócio são <strong>códigos curtos</strong> em <code>error</code> (<code>has_tarefas</code>, <code>nome_duplicado</code>…), que o front traduz em mensagem; nunca texto livre.</li><li>Os vocabulários (tags, status) são validados no servidor contra a tabela <code>lifeos_vocabularios</code>.</li><li>O endpoint do MCP é a exceção: o token vai no <em>path</em> (<code>/functions/v1/lifeos-mcp/&lt;token&gt;</code>), porque conectores pessoais do claude.ai não aceitam header estático.</li><li>Compatibilidade de RPC: <code>POST /rest/v1/rpc/check_page_access</code> mantém o formato antigo.</li></ol>
+<h2>Endpoints</h2>
+<div class="table-scroll"><table class=""><thead><tr><th>Rota</th><th>Módulo dono</th></tr></thead><tbody><tr><td><code>/functions/v1/lifeos-notas</code></td><td><a href="features/notas.html">notas</a></td></tr><tr><td><code>/functions/v1/lifeos-projetos</code></td><td><a href="features/projetos-tarefas.html">projetos</a></td></tr><tr><td><code>/functions/v1/lifeos-tarefas</code></td><td><a href="features/projetos-tarefas.html">projetos</a></td></tr><tr><td><code>/functions/v1/lifeos-eventos</code></td><td><a href="features/agenda.html">agenda</a></td></tr><tr><td><code>/functions/v1/lifeos-manifestacoes</code></td><td><a href="features/manifestacoes.html">manifestacoes</a></td></tr><tr><td><code>/functions/v1/lifeos-citacoes</code></td><td><a href="features/citacoes.html">citacoes</a></td></tr><tr><td><code>/functions/v1/lifeos-memorias</code></td><td><a href="features/memoria.html">memoria</a></td></tr><tr><td><code>/functions/v1/lifeos-renuncias</code></td><td><a href="features/renuncias.html">renuncias</a></td></tr><tr><td><code>/functions/v1/lifeos-views</code></td><td><a href="features/visoes.html">visoes</a></td></tr><tr><td><code>/functions/v1/lifeos-vocabularios</code></td><td><a href="features/vocabularios.html">vocabularios</a></td></tr><tr><td><code>/functions/v1/lifeos-movimentacoes</code></td><td><a href="features/financas.html">financas</a></td></tr><tr><td><code>/functions/v1/lifeos-recorrencias</code></td><td><a href="features/financas.html">financas</a></td></tr><tr><td><code>/functions/v1/lifeos-ingest</code></td><td><a href="features/financas.html">financas</a></td></tr><tr><td><code>/functions/v1/lifeos-senhas</code></td><td><a href="features/acesso.html">acesso</a></td></tr><tr><td><code>/functions/v1/lifeos-config</code></td><td><a href="features/acesso.html">acesso</a></td></tr><tr><td><code>/functions/v1/lifeos-backup</code></td><td><a href="features/backup.html">backup</a></td></tr><tr><td><code>/functions/v1/lifeos-mcp/{token?}</code></td><td><a href="features/mcp.html">mcp</a></td></tr></tbody></table></div>
+<div class="callout"><b>Por que o front não muda:</b> <code>lifeos-config.js</code> é a única peça gerada pelo servidor (identidade, tema, URLs). Tudo o mais é servido cru,.</div>
+</div></div>
+<footer class="site-footer">LifeOS · v0.1.0 · atualizado 2026-10-08</footer>
+<script src="assets/site-chrome.js" defer></script>
+</body>
+</html>

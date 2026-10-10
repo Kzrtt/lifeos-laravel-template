@@ -1,0 +1,24 @@
+{
+	"name": "modules/notas",
+	"description": "Notas com vínculo N:N a projetos.",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Modules\\Notas\\": "src/",
+			"Modules\\Notas\\Tests\\": "tests/",
+			"Modules\\Notas\\Database\\Factories\\": "database/factories/",
+			"Modules\\Notas\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Modules\\Notas\\Providers\\NotasServiceProvider"
+			]
+		}
+	}
+}

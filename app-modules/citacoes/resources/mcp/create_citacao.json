@@ -1,0 +1,21 @@
+{
+  "name": "create_citacao",
+  "description": "Adiciona uma citação ao LifeOS. Ela passa a concorrer ao sorteio do banner do painel. Envolva um trecho em *asteriscos* para destacá-lo (ex.: \"elimine *duas coisas*\") — opcional.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "texto": {
+        "type": "string",
+        "description": "O texto da citação, sem aspas em volta."
+      },
+      "autor": {
+        "type": "string",
+        "description": "Nome de quem disse."
+      }
+    },
+    "required": [
+      "texto",
+      "autor"
+    ]
+  }
+}

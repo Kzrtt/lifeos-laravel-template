@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifeOS · Visões salvas</title>
+<meta name="description" content="Filtros combináveis de Notas e Tarefas, salvos com nome; o hub só alterna entre eles.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%2308090b'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%2357b8c4' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..600;1,400&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-view="business">
+<header class="site-nav">
+  <a class="brand" href="../index.html"><span class="mark" aria-hidden="true"></span> LifeOS · Mapa do Sistema</a>
+  <span class="crumbs"><a href="../index.html">index</a><span class="sep">/</span>features<span class="sep">/</span>visoes</span>
+</header>
+<div class="wrap"><div class="page-head"><div class="kicker">Núcleo · módulo visoes</div>
+<h1>Visões salvas</h1><p class="lede">Filtros combináveis de Notas e Tarefas, salvos com nome; o hub só alterna entre eles.</p>
+<div class="meta"><span class="status status--built">✅ implementado</span><span class="tag">filtros</span><span class="tag">notas</span><span class="tag">tarefas</span></div>
+<div class="view-switch" role="group" aria-label="Visão">
+<button type="button" data-view="business" aria-pressed="true">Regra de negócio</button>
+<button type="button" data-view="code" aria-pressed="false">Código</button></div></div>
+<div class="prose">
+<div class="view-business"><h2>O problema</h2><p>Quem tem centenas de notas e tarefas quer olhar “só o que é do projeto X e do tipo Y” sem refazer o filtro todo dia.</p><h2>As regras</h2><ol class="rules"><li>Uma visão pertence a <strong>uma tabela</strong>: Notas ou Tarefas.</li><li>Uma visão é um <strong>modo</strong> mais uma lista de regras. Modo <em>todas</em> = todas as regras valem (E); modo <em>qualquer</em> = basta uma (OU).</li><li>Cada regra escolhe um campo (em Notas: projeto, tipo; em Tarefas: projeto, tipo, status), um operador (<em>incluir</em> ou <em>excluir</em>) e os valores.</li><li>No máximo <strong>uma visão padrão</strong> por tabela; ela abre no lugar de “Todas” na primeira carga da sessão, e o ↻ não desfaz uma troca manual.</li><li>A gestão (criar, editar, excluir, ordenar) mora em <code>notas.html</code> e <code>tarefas.html</code>; o hub só alterna.</li><li>Modo ou regras inválidos são recusados (<code>invalid_modo</code>, <code>invalid_regras</code>).</li></ol></div>
+<div class="view-code"><h2>Onde vive no código</h2><div class="table-scroll"><table class=""><thead><tr><th>Item</th><th>Valor</th></tr></thead><tbody><tr><td>Módulo</td><td><code>app-modules/visoes</code></td></tr><tr><td>Tabelas</td><td><code>lifeos_views</code></td></tr><tr><td>Endpoints</td><td><code>POST /functions/v1/lifeos-views</code></td></tr><tr><td>Actions</td><td><code>ListarVisoes</code>, <code>CriarVisao</code>, <code>AtualizarVisao</code>, <code>ExcluirVisao</code></td></tr></tbody></table></div></div>
+</div><div class="pager"><a href="vocabularios.html">← Vocabulários (Tags)</a><a href="projetos-tarefas.html">Projetos e Tarefas →</a></div></div>
+<footer class="site-footer">LifeOS · v0.1.0 · atualizado 2026-10-08</footer>
+<script src="../assets/site-chrome.js" defer></script><script src="../assets/feature-view.js" defer></script>
+</body>
+</html>

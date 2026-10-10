@@ -1,0 +1,24 @@
+{
+	"name": "modules/manifestacoes",
+	"description": "Intenções de longo prazo com banner.",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Modules\\Manifestacoes\\": "src/",
+			"Modules\\Manifestacoes\\Tests\\": "tests/",
+			"Modules\\Manifestacoes\\Database\\Factories\\": "database/factories/",
+			"Modules\\Manifestacoes\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Modules\\Manifestacoes\\Providers\\ManifestacoesServiceProvider"
+			]
+		}
+	}
+}

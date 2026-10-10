@@ -1,0 +1,21 @@
+{
+  "name": "search_citacoes",
+  "description": "Lê as citações guardadas no LifeOS (texto + quem disse). Sem filtros devolve todas. Trechos entre *asteriscos* no texto são destaques visuais do app, não parte da frase.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "texto": {
+        "type": "string",
+        "description": "Trecho do texto da citação."
+      },
+      "autor": {
+        "type": "string",
+        "description": "Trecho do nome de quem disse."
+      },
+      "limit": {
+        "type": "integer",
+        "description": "Máximo de resultados (padrão 20, máximo 50)."
+      }
+    }
+  }
+}

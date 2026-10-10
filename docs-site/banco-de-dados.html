@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifeOS · Modelo de Dados</title>
+<meta name="description" content="Todas as tabelas do LifeOS com colunas, relações e convenções.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%2308090b'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%2357b8c4' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..600;1,400&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="site-nav">
+  <a class="brand" href="index.html"><span class="mark" aria-hidden="true"></span> LifeOS · Mapa do Sistema</a>
+  <span class="crumbs"><a href="index.html">index</a><span class="sep">/</span>banco-de-dados</span>
+</header>
+<div class="wrap"><div class="page-head"><div class="kicker">Banco de dados</div><h1>Modelo de Dados (DER)</h1><p class="lede">PostgreSQL 16 próprio, acessado só por Eloquent. Tudo que tem dono carrega <code>entity_ent_id</code> (o tenant); toda coluna leva o prefixo de 3 letras da tabela e a chave primária é UUID.</p><div class="meta"><span class="status status--built">✅ implementado</span></div></div><div class="prose">
+<h2>Relações principais</h2>
+<p>Linha cheia = chave estrangeira no banco. Linha pontilhada = <strong>referência lógica</strong>: o módulo dono do dado não cria FK para a tabela de outro módulo (fronteira de módulo é sagrada); a limpeza, quando o projeto some, é feita por evento/ação. Todas as tabelas de domínio também apontam para <code>entities</code> — omitido do desenho para não poluir.</p>
+<div class="diagram"><pre class="mermaid">
+erDiagram
+  access_tokens {
+    uuid tok_id PK
+  }
+  entities {
+    uuid ent_id PK
+  }
+  lifeos_eventos {
+    uuid evt_id PK
+    uuid projeto_prj_id FK
+  }
+  lifeos_memoria_registros {
+    uuid mrg_id PK
+    uuid memoria_mem_id FK
+  }
+  lifeos_memorias {
+    uuid mem_id PK
+  }
+  lifeos_notas {
+    uuid not_id PK
+  }
+  lifeos_notas_projetos {
+    uuid npj_id PK
+    uuid nota_not_id FK
+    uuid projeto_prj_id FK
+  }
+  lifeos_projetos {
+    uuid prj_id PK
+  }
+  lifeos_renuncia_tentativas {
+    uuid rtn_id PK
+    uuid renuncia_ren_id FK
+  }
+  lifeos_renuncias {
+    uuid ren_id PK
+  }
+  lifeos_tarefas {
+    uuid tar_id PK
+    uuid projeto_prj_id FK
+  }
+  token_pages {
+    uuid tpg_id PK
+    uuid access_token_tok_id FK
+  }
+  entities ||--o{ access_tokens : &quot;tenant&quot;
+  access_tokens ||--o{ token_pages : &quot;concede&quot;
+  lifeos_projetos ||--o{ lifeos_tarefas : &quot;restrict&quot;
+  lifeos_notas ||--o{ lifeos_notas_projetos : &quot;cascade&quot;
+  lifeos_projetos ||..o{ lifeos_notas_projetos : &quot;lógica&quot;
+  lifeos_projetos |o..o{ lifeos_eventos : &quot;lógica&quot;
+  lifeos_memorias ||--o{ lifeos_memoria_registros : &quot;cascade&quot;
+  lifeos_renuncias ||--o{ lifeos_renuncia_tentativas : &quot;cascade&quot;
+</pre></div>
+<h2>Convenções</h2>
+<ol class="rules"><li><strong>Prefixo de 3 letras</strong> em toda coluna (<code>not_name</code>, <code>tar_status</code>…); FKs seguem <code>{tabela_singular}_{pk}</code>.</li><li><strong>UUID</strong> como chave primária de tudo.</li><li><strong>SoftDeletes</strong> com <code>&lt;prefixo&gt;_deleted_at</code> nas tabelas transacionais; unicidade (ex.: nome de renúncia, título de memória) vale só entre registros não apagados, via índice parcial.</li><li>Colunas <code>&lt;prefixo&gt;_created_at</code> / <code>_updated_at</code> existem em todas e não são repetidas abaixo.</li><li>Listas (<code>tipo</code>, <code>tags</code>) são <code>text[]</code> do PostgreSQL — por isso o banco de teste também é PostgreSQL.</li><li>Toda mutação cai em <code>audit_logs</code> (append-only) por Observer; colunas sensíveis ficam fora do diff.</li></ol>
+<h2>Tabelas</h2>
+<h3 id="entities">entities <span class="tag">tenancy</span></h3><p>O tenant: a instância do LifeOS (identidade, tema, capa do hub).</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>ent_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>ent_name</code></td><td>string</td><td></td></tr><tr><td><code>ent_email</code></td><td>string?</td><td></td></tr><tr><td><code>ent_slug</code></td><td>string</td><td>único</td></tr><tr><td><code>ent_sub / ent_banner / ent_avatar</code></td><td>string?</td><td>identidade</td></tr><tr><td><code>ent_tema</code></td><td>string</td><td>padrão &#x27;abismo&#x27;</td></tr><tr><td><code>ent_hub_capa</code></td><td>string</td><td>padrão &#x27;classica&#x27;</td></tr><tr><td><code>ent_blog_habilitado</code></td><td>bool</td><td>padrão true</td></tr></tbody></table></div>
+<h3 id="audit_logs">audit_logs <span class="tag">core</span></h3><p>Trilha append-only de toda mutação (sem FKs: sobrevive aos registros).</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>aud_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid?</td><td>índice</td></tr><tr><td><code>aud_user_id</code></td><td>string?</td><td></td></tr><tr><td><code>aud_table</code></td><td>string</td><td></td></tr><tr><td><code>aud_record_id</code></td><td>string</td><td></td></tr><tr><td><code>aud_action</code></td><td>string</td><td>created | updated | deleted | restored</td></tr><tr><td><code>aud_before / aud_after</code></td><td>json?</td><td>diff</td></tr><tr><td><code>aud_created_at</code></td><td>timestamp</td><td></td></tr></tbody></table></div>
+<h3 id="access_tokens">access_tokens <span class="tag">acesso</span></h3><p>As senhas do gate (nunca em claro).</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>tok_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid</td><td>FK → entities</td></tr><tr><td><code>tok_hash</code></td><td>string</td><td>hash da senha</td></tr><tr><td><code>tok_hint / tok_len</code></td><td>string / smallint</td><td>índice auxiliar de busca</td></tr><tr><td><code>tok_is_master</code></td><td>bool</td><td>padrão false</td></tr><tr><td><code>tok_label</code></td><td>string?</td><td></td></tr></tbody></table></div>
+<h3 id="token_pages">token_pages <span class="tag">acesso</span></h3><p>Quais páginas cada senha não-mestre abre.</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>tpg_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid</td><td>FK → entities</td></tr><tr><td><code>access_token_tok_id</code></td><td>uuid</td><td>FK → access_tokens</td></tr><tr><td><code>tpg_page_slug</code></td><td>string</td><td>único por (senha, página) enquanto ativo</td></tr></tbody></table></div>
+<h3 id="admin_configs">admin_configs <span class="tag">acesso</span></h3><p>Segredos/config da instância, cifrados.</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>cfg_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid</td><td>FK → entities</td></tr><tr><td><code>cfg_key</code></td><td>string</td><td>único por tenant</td></tr><tr><td><code>cfg_value</code></td><td>text</td><td>cifrado (cast encrypted)</td></tr></tbody></table></div>
+<h3 id="lifeos_vocabularios">lifeos_vocabularios <span class="tag">vocabularios</span></h3><p>Listas configuráveis (tags, status, meios) em 11 domínios.</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>voc_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid</td><td>FK → entities</td></tr><tr><td><code>voc_dominio</code></td><td>string</td><td>ex.: nota_tipo</td></tr><tr><td><code>voc_valor</code></td><td>text</td><td>único por (tenant, domínio)</td></tr><tr><td><code>voc_cor</code></td><td>string?</td><td></td></tr><tr><td><code>voc_ordem</code></td><td>int</td><td></td></tr><tr><td><code>voc_protegido</code></td><td>bool</td><td>lido pela lógica: renomeia, não apaga</td></tr></tbody></table></div>
+<h3 id="lifeos_projetos">lifeos_projetos <span class="tag">projetos</span></h3><p>Projetos que agrupam tarefas, notas e eventos.</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>prj_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid</td><td>FK → entities</td></tr><tr><td><code>prj_name</code></td><td>text</td><td></td></tr><tr><td><code>prj_emoji</code></td><td>text?</td><td></td></tr><tr><td><code>prj_status</code></td><td>string</td><td>vocabulário projeto_status</td></tr><tr><td><code>prj_tags</code></td><td>text[]</td><td>vocabulário projeto_tag</td></tr></tbody></table></div>
+<h3 id="lifeos_tarefas">lifeos_tarefas <span class="tag">projetos</span></h3><p>Tarefas — sempre dentro de um projeto.</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>tar_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid</td><td>FK → entities</td></tr><tr><td><code>projeto_prj_id</code></td><td>uuid</td><td>FK → lifeos_projetos (restrict)</td></tr><tr><td><code>tar_name</code></td><td>text</td><td></td></tr><tr><td><code>tar_status</code></td><td>string</td><td>vocabulário tarefa_status</td></tr><tr><td><code>tar_tipo</code></td><td>text[]</td><td>vocabulário tarefa_tipo</td></tr><tr><td><code>tar_data_entrega</code></td><td>date?</td><td></td></tr><tr><td><code>tar_descricao</code></td><td>text?</td><td>markdown</td></tr></tbody></table></div>
+<h3 id="lifeos_notas">lifeos_notas <span class="tag">notas</span></h3><p>Registros de contexto em markdown.</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>not_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid</td><td>FK → entities</td></tr><tr><td><code>not_name</code></td><td>text</td><td></td></tr><tr><td><code>not_tipo</code></td><td>text[]</td><td>vocabulário nota_tipo</td></tr><tr><td><code>not_data</code></td><td>date?</td><td>a data real do conteúdo</td></tr><tr><td><code>not_conteudo_md</code></td><td>text?</td><td>markdown (com diagramas Mermaid)</td></tr></tbody></table></div>
+<h3 id="lifeos_notas_projetos">lifeos_notas_projetos <span class="tag">notas</span></h3><p>Junção N:N nota ↔ projeto.</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>npj_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid</td><td>FK → entities</td></tr><tr><td><code>nota_not_id</code></td><td>uuid</td><td>FK → lifeos_notas (cascade)</td></tr><tr><td><code>projeto_prj_id</code></td><td>uuid</td><td>referência lógica a lifeos_projetos</td></tr><tr><td><code>(nota, projeto)</code></td><td></td><td>único</td></tr></tbody></table></div>
+<h3 id="lifeos_views">lifeos_views <span class="tag">visoes</span></h3><p>Visões salvas (filtros combináveis) de notas e tarefas.</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>vis_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid</td><td>FK → entities</td></tr><tr><td><code>vis_tabela</code></td><td>string</td><td>notas | tarefas</td></tr><tr><td><code>vis_nome</code></td><td>text</td><td></td></tr><tr><td><code>vis_modo</code></td><td>string</td><td>todas (E) | qualquer (OU)</td></tr><tr><td><code>vis_regras</code></td><td>jsonb</td><td>lista de regras</td></tr><tr><td><code>vis_ordem</code></td><td>int</td><td></td></tr><tr><td><code>vis_padrao</code></td><td>bool</td><td>no máx. uma por (tenant, tabela)</td></tr></tbody></table></div>
+<h3 id="lifeos_eventos">lifeos_eventos <span class="tag">agenda</span></h3><p>Eventos do calendário.</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>evt_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid</td><td>FK → entities</td></tr><tr><td><code>projeto_prj_id</code></td><td>uuid?</td><td>referência lógica a lifeos_projetos</td></tr><tr><td><code>evt_name</code></td><td>text</td><td></td></tr><tr><td><code>evt_date</code></td><td>date</td><td></td></tr><tr><td><code>evt_date_fim</code></td><td>date?</td><td>CHECK ≥ evt_date</td></tr><tr><td><code>evt_tipo</code></td><td>string</td><td>vocabulário evento_tipo</td></tr></tbody></table></div>
+<h3 id="lifeos_manifestacoes">lifeos_manifestacoes <span class="tag">manifestacoes</span></h3><p>Intenções/metas, com banner.</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>man_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid</td><td>FK → entities</td></tr><tr><td><code>man_name</code></td><td>text</td><td></td></tr><tr><td><code>man_status</code></td><td>string</td><td>vocabulário manifestacao_status</td></tr><tr><td><code>man_tags</code></td><td>text[]</td><td>vocabulário manifestacao_tag</td></tr><tr><td><code>man_banner_url</code></td><td>text?</td><td>nulo = banner padrão</td></tr><tr><td><code>man_descricao</code></td><td>text?</td><td></td></tr></tbody></table></div>
+<h3 id="lifeos_memorias">lifeos_memorias <span class="tag">memoria</span></h3><p>O índice da memória de longo prazo: um tema por linha.</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>mem_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid</td><td>FK → entities</td></tr><tr><td><code>mem_titulo</code></td><td>text</td><td>único sem diferenciar caixa/espaços</td></tr><tr><td><code>mem_descricao</code></td><td>text</td><td></td></tr><tr><td><code>mem_categoria</code></td><td>string</td><td>vocabulário memoria_categoria</td></tr></tbody></table></div>
+<h3 id="lifeos_memoria_registros">lifeos_memoria_registros <span class="tag">memoria</span></h3><p>Os fatos datados de cada memória.</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>mrg_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid</td><td>FK → entities</td></tr><tr><td><code>memoria_mem_id</code></td><td>uuid</td><td>FK → lifeos_memorias (cascade)</td></tr><tr><td><code>mrg_texto</code></td><td>text</td><td></td></tr><tr><td><code>mrg_origem</code></td><td>text?</td><td>quem escreveu</td></tr></tbody></table></div>
+<h3 id="lifeos_renuncias">lifeos_renuncias <span class="tag">renuncias</span></h3><p>Hábitos cortados e desde quando.</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>ren_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid</td><td>FK → entities</td></tr><tr><td><code>ren_nome</code></td><td>text</td><td>único sem diferenciar caixa/espaços</td></tr><tr><td><code>ren_emoji</code></td><td>text</td><td></td></tr><tr><td><code>ren_desde</code></td><td>timestamp</td><td>a última vez</td></tr><tr><td><code>ren_arquivada</code></td><td>bool</td><td></td></tr></tbody></table></div>
+<h3 id="lifeos_renuncia_tentativas">lifeos_renuncia_tentativas <span class="tag">renuncias</span></h3><p>Histórico: cada tentativa encerrada por uma recaída.</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>rtn_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid</td><td>FK → entities</td></tr><tr><td><code>renuncia_ren_id</code></td><td>uuid</td><td>FK → lifeos_renuncias (cascade)</td></tr><tr><td><code>rtn_inicio</code></td><td>timestamp</td><td></td></tr><tr><td><code>rtn_fim</code></td><td>timestamp</td><td>CHECK ≥ rtn_inicio</td></tr></tbody></table></div>
+<h3 id="lifeos_citacoes">lifeos_citacoes <span class="tag">citacoes</span></h3><p>Citações para o banner do hub.</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>cit_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid</td><td>FK → entities</td></tr><tr><td><code>cit_texto</code></td><td>text</td><td></td></tr><tr><td><code>cit_autor</code></td><td>text</td><td></td></tr></tbody></table></div>
+<h3 id="lifeos_movimentacoes">lifeos_movimentacoes <span class="tag">financas</span></h3><p>Entradas e saídas de dinheiro.</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>mov_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid</td><td>FK → entities</td></tr><tr><td><code>mov_name</code></td><td>text</td><td></td></tr><tr><td><code>mov_valor</code></td><td>decimal(12,2)</td><td>CHECK ≥ 0; o sinal vem da direção</td></tr><tr><td><code>mov_date</code></td><td>date</td><td></td></tr><tr><td><code>mov_tipo</code></td><td>text[]</td><td>direção + meio, na mesma coluna</td></tr></tbody></table></div>
+<h3 id="lifeos_recorrencias">lifeos_recorrencias <span class="tag">financas</span></h3><p>O que se espera que entre/saia todo mês.</p>
+<div class="table-scroll"><table class=""><thead><tr><th>Coluna</th><th>Tipo</th><th>Observação</th></tr></thead><tbody><tr><td><code>rec_id</code></td><td>uuid</td><td>PK</td></tr><tr><td><code>entity_ent_id</code></td><td>uuid</td><td>FK → entities</td></tr><tr><td><code>rec_nome</code></td><td>text</td><td></td></tr><tr><td><code>rec_direcao</code></td><td>string</td><td></td></tr><tr><td><code>rec_valor_min / rec_valor_max</code></td><td>decimal(12,2)</td><td>fixo = iguais; CHECK max ≥ min ≥ 0</td></tr><tr><td><code>rec_meio</code></td><td>string?</td><td></td></tr><tr><td><code>rec_dia</code></td><td>smallint?</td><td>1–31</td></tr><tr><td><code>rec_ativa</code></td><td>bool</td><td>pausada fica guardada</td></tr></tbody></table></div>
+</div></div>
+<footer class="site-footer">LifeOS · v0.1.0 · atualizado 2026-10-08</footer>
+<script src="assets/site-chrome.js" defer></script><script src="assets/diagrams.js" defer></script>
+</body>
+</html>

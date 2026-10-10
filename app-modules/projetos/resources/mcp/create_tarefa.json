@@ -1,0 +1,42 @@
+{
+  "name": "create_tarefa",
+  "description": "Cria uma nova tarefa no LifeOS. Toda tarefa é obrigatoriamente vinculada a um projeto existente -- use search_projetos antes se não souber o nome exato. status, quando omitido, começa como 'Não Iniciado' (mesmo padrão da tela).",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Nome da tarefa."
+      },
+      "projeto": {
+        "type": "string",
+        "description": "Nome (ou trecho único) do projeto ao qual vincular a tarefa."
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "@@tarefa_status@@"
+        ],
+        "description": "Status inicial (padrão: 'Não Iniciado')."
+      },
+      "tipo": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "@@tarefa_tipo@@"
+          ]
+        },
+        "description": "Tipos/tags da tarefa (opcional, pode ficar vazio)."
+      },
+      "data_entrega": {
+        "type": "string",
+        "description": "Data de entrega YYYY-MM-DD (opcional)."
+      }
+    },
+    "required": [
+      "name",
+      "projeto"
+    ]
+  }
+}

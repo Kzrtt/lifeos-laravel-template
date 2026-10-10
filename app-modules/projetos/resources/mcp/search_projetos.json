@@ -1,0 +1,34 @@
+{
+  "name": "search_projetos",
+  "description": "Busca projetos do LifeOS por nome, status e tags. Todos os filtros são opcionais e combináveis.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "nome": {
+        "type": "string",
+        "description": "Trecho do nome do projeto."
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "@@projeto_status@@"
+        ],
+        "description": "Status exato do projeto."
+      },
+      "tags": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "@@projeto_tag@@"
+          ]
+        },
+        "description": "Uma ou mais tags -- entra se tiver QUALQUER UMA."
+      },
+      "limit": {
+        "type": "integer",
+        "description": "Máximo de resultados (padrão 20, máximo 50)."
+      }
+    }
+  }
+}

@@ -1,0 +1,382 @@
+/* mcp.js — tela do conector MCP (lifeos/mcp.html)
+ * ──────────────────────────────────────────────────────────────────────────
+ *
+ * Mostra a URL que o usuário cola no cliente MCP e explica o que o conector
+ * faz. A URL carrega o token de acesso embutido no path (ver AUTH.md §4 e o
+ * cabeçalho de supabase/functions/lifeos-mcp/index.ts), então esta página
+ * fica atrás do gate mestre como as outras.
+ *
+ * O TOKEN VEM DO BANCO, NÃO DO CÓDIGO. `lifeos-config` (ação `mcp_url`) lê
+ * `admin_config.mcp_token` e devolve a URL montada. Pôr o token em
+ * `lifeos-config.js` seria publicá-lo: aquele arquivo é servido pelo GitHub
+ * Pages e qualquer visitante o lê.
+ *
+ * A lista de ferramentas é uma CÓPIA da que está em `lifeos-mcp/index.ts`.
+ * Buscar do servidor exigiria falar JSON-RPC com o próprio MCP a partir do
+ * browser — mais peça móvel do que o valor justifica numa tela de ajuda.
+ * Ao mudar uma tool lá, atualize aqui.
+ */
+(function () {
+  'use strict';
+
+  var CFG = window.LIFEOS_CONFIG;
+  if (!CFG) throw new Error('lifeos-config.js não carregou — confira a tag <script> em mcp.html');
+
+  var CONFIG_FN = CFG.supabaseUrl + '/functions/v1/lifeos-config';
+  var ANON_KEY = CFG.anonKey;
+  var LS_KEY = CFG.sessionKey;
+
+  var SESSION_PW = '';
+  var MCP_URL = '';
+
+  function $(id) { return document.getElementById(id); }
+
+  function esc(str) {
+    var el = document.createElement('span');
+    el.textContent = str == null ? '' : String(str);
+    return el.innerHTML;
+  }
+
+  /* ── Modo local ──────────────────────────────────────────────────
+     Mesma razão das outras telas: CORS impede falar com a Edge Function de
+     file:// ou localhost. Aqui o mock usa um token obviamente falso — a URL
+     não pode parecer real, ou alguém acaba colando ela num cliente. */
+  var IS_LOCAL_DEV = (location.protocol === 'file:') ||
+    /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+
+  function showDevBadge() {
+    var b = document.createElement('div');
+    b.textContent = 'DEV · URL fictícia';
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2000;background:#c4913a;color:#14120f;' +
+      "font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;text-align:center;padding:4px 0;";
+    document.body.appendChild(b);
+  }
+
+  function mockDelay(v) {
+    return new Promise(function (r) { setTimeout(function () { r(v); }, 220); });
+  }
+
+  /* ── Catálogo das tools — cópia de lifeos-mcp/index.ts ───────────── */
+  var TOOLS = [
+    {
+      nome: 'search_notas', tipo: 'leitura',
+      desc: 'Busca notas e devolve o conteúdo completo em markdown, não só o título.',
+      filtros: 'nome · projetos · tipo · intervalo de data',
+    },
+    {
+      nome: 'create_nota', tipo: 'escrita',
+      desc: 'Cria uma nota nova. A data é sempre hoje. Exige nome, tipo, ao menos um projeto e o conteúdo.',
+      filtros: 'nome · tipo · projetos · conteúdo — todos obrigatórios',
+    },
+    {
+      nome: 'update_nota', tipo: 'escrita',
+      desc: 'Edita uma nota existente. Substituição completa, não é um patch — toda chamada reenvia nome, tipo, projetos e o conteúdo INTEIRO, mesmo o que não mudou.',
+      filtros: 'id + todos os campos, sempre',
+    },
+    {
+      nome: 'search_tarefas', tipo: 'leitura',
+      desc: 'Busca tarefas, com o projeto ao qual cada uma pertence.',
+      filtros: 'nome · projeto · status · tipo · data de entrega',
+    },
+    {
+      nome: 'create_tarefa', tipo: 'escrita',
+      desc: 'Cria uma tarefa. Toda tarefa pertence a um projeto existente; sem status, nasce como "Não Iniciado".',
+      filtros: 'nome · projeto (obrigatórios) · status · tipo · data de entrega',
+    },
+    {
+      nome: 'update_tarefa', tipo: 'escrita',
+      desc: 'Edita uma tarefa — patch parcial: só o que for enviado muda. Serve também para trocar de projeto.',
+      filtros: 'id + qualquer campo',
+    },
+    {
+      nome: 'search_projetos', tipo: 'leitura',
+      desc: 'Lista projetos — útil para a IA descobrir os nomes antes de filtrar o resto.',
+      filtros: 'nome · status · tags',
+    },
+    {
+      nome: 'search_eventos', tipo: 'leitura',
+      desc: 'Busca eventos do calendário, com o projeto vinculado quando houver.',
+      filtros: 'nome · tipo · projeto · intervalo de data',
+    },
+    {
+      nome: 'create_evento', tipo: 'escrita',
+      desc: 'Cria um evento no calendário. Data final e projeto são opcionais.',
+      filtros: 'nome · data · tipo (obrigatórios) · data final · projeto',
+    },
+    {
+      nome: 'update_evento', tipo: 'escrita',
+      desc: 'Edita um evento — patch parcial. Mandar data final ou projeto vazios remove o valor.',
+      filtros: 'id + qualquer campo',
+    },
+    {
+      nome: 'search_manifestacoes', tipo: 'leitura',
+      desc: 'Busca manifestações — os objetivos de longo prazo do sistema.',
+      filtros: 'nome · status · tags',
+    },
+    {
+      nome: 'search_citacoes', tipo: 'leitura',
+      desc: 'Lê as citações guardadas — as que o painel sorteia no banner acima do calendário.',
+      filtros: 'texto · autor',
+    },
+    {
+      nome: 'create_citacao', tipo: 'escrita',
+      desc: 'Adiciona uma citação (texto + quem disse). Trechos entre *asteriscos* ficam em destaque no banner.',
+      filtros: 'texto · autor — só criar, sem editar',
+    },
+    {
+      nome: 'search_renuncias', tipo: 'leitura',
+      desc: 'Há quanto tempo você está sem cada hábito: tempo corrido, próximo marco e quanto falta, recaídas e recorde. Arquivada vem sem tempo nem marcos, só o histórico. Criar e registrar recaída é só pela tela.',
+      filtros: 'nome · incluir arquivadas · histórico de tentativas',
+    },
+    {
+      nome: 'list_memorias', tipo: 'leitura',
+      desc: 'Índice da memória de longo prazo: título, categoria e descrição de cada memória, sem o conteúdo. O mesmo índice já chega à IA ao conectar.',
+      filtros: 'categoria',
+    },
+    {
+      nome: 'get_memoria', tipo: 'leitura',
+      desc: 'Abre uma ou mais memórias e devolve todos os registros, datados e com a origem de cada um.',
+      filtros: 'títulos ou ids',
+    },
+    {
+      nome: 'create_memoria', tipo: 'escrita',
+      desc: 'Cria uma memória nova — um tema. Título único; se o tema já existe, a IA é orientada a usar add_registro.',
+      filtros: 'título · descrição · categoria (obrigatórios) · registros iniciais · origem',
+    },
+    {
+      nome: 'add_registro', tipo: 'escrita',
+      desc: 'Acrescenta um fato datado a uma memória existente. É como a memória cresce.',
+      filtros: 'memória · texto (obrigatórios) · origem',
+    },
+    {
+      nome: 'update_memoria', tipo: 'escrita',
+      desc: 'Edita título, descrição ou categoria de uma memória — patch parcial; os registros não mudam.',
+      filtros: 'memória + qualquer campo',
+    },
+    {
+      nome: 'update_registro', tipo: 'escrita',
+      desc: 'Corrige um registro que ficou errado. Substitui o texto inteiro; a data original se mantém.',
+      filtros: 'id · texto — sempre o texto completo',
+    },
+    {
+      nome: 'resumo_financeiro', tipo: 'leitura',
+      desc: 'O mês já agregado com as mesmas regras da tela de Finanças: saldo com abertura, crédito fora do caixa, fatura que fecha (pago, restante, adiantamento), recorrências. Por cima disso, consumo real do mês, rateios, compromissos fixos (do cadastro de Recorrências previstas, ou adivinhados pelo histórico), gastos fora da curva, ritmo do mês, consumo e variável de cada dia e quanto sobra por dia nos dois meses seguintes, em faixa quando o cadastro tem faixa. Com um intervalo, compara até 12 meses, nome a nome.',
+      filtros: 'mês · ou de/até · incluir movimentações (até 3 meses)',
+    },
+    {
+      nome: 'search_movimentacoes', tipo: 'leitura',
+      desc: 'Busca as movimentações em si, para descer ao detalhe. Com início e fim de data, um mês inteiro cabe numa chamada.',
+      filtros: 'nome · direção · meio · data · faixa de valor',
+    },
+    {
+      nome: 'create_movimentacao', tipo: 'escrita',
+      desc: 'Lança uma movimentação financeira nova.',
+      filtros: 'nome · valor · data · direção (obrigatórios) · meio',
+    },
+    {
+      nome: 'update_movimentacao', tipo: 'escrita',
+      desc: 'Edita uma movimentação — patch parcial. Direção e meio mudam de forma independente.',
+      filtros: 'id + qualquer campo',
+    },
+  ];
+
+  function renderTools() {
+    $('tool-grid').innerHTML = TOOLS.map(function (t) {
+      return '<div class="tool">'
+        + '<div class="tool-nome"><code>' + esc(t.nome) + '</code>'
+        + '<span class="tool-tag ' + t.tipo + '">' + esc(t.tipo) + '</span></div>'
+        + '<div class="tool-desc">' + esc(t.desc) + '</div>'
+        + '<div class="tool-filtros"><b>filtros:</b> ' + esc(t.filtros) + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  /* ── URL ─────────────────────────────────────────────────────────── */
+  function buscarUrl() {
+    if (IS_LOCAL_DEV) {
+      return mockDelay({
+        ok: true, definido: true,
+        url: CFG.supabaseUrl + '/functions/v1/lifeos-mcp/TOKEN-FICTICIO-DO-MODO-LOCAL',
+      });
+    }
+    return fetch(CONFIG_FN, {
+      method: 'POST',
+      headers: {
+        'apikey': ANON_KEY,
+        'Authorization': 'Bearer ' + ANON_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token: SESSION_PW, action: 'mcp_url' }),
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (data) {
+        if (!res.ok || data.ok !== true) {
+          var err = new Error(data.error || ('http_' + res.status));
+          err.code = data.error || ('http_' + res.status);
+          throw err;
+        }
+        return data;
+      });
+    });
+  }
+
+  function renderUrl(data) {
+    var el = $('mcp-url');
+    var hint = $('mcp-hint');
+
+    if (!data.definido) {
+      MCP_URL = '';
+      el.className = 'url-val vazio';
+      el.textContent = 'nenhum token de MCP cadastrado';
+      hint.innerHTML = 'Gere um valor com <code>openssl rand -hex 32</code> e grave-o em '
+        + '<code>admin_config</code>, na chave <code>mcp_token</code>.';
+      $('mcp-copy').disabled = true;
+      return;
+    }
+
+    MCP_URL = data.url;
+    el.className = 'url-val';
+    el.textContent = data.url;
+    hint.textContent = '';
+  }
+
+  function copiarUrl() {
+    if (!MCP_URL) return;
+    var btn = $('mcp-copy');
+
+    function feedback() {
+      btn.classList.add('ok');
+      btn.innerHTML = '<i class="fad fa-check"></i>';
+      setTimeout(function () {
+        btn.classList.remove('ok');
+        btn.innerHTML = '<i class="fad fa-copy"></i>';
+      }, 1600);
+    }
+
+    /* `navigator.clipboard` exige contexto seguro (https ou localhost) — em
+       file:// ele não existe, e é justamente onde se testa a página. O
+       fallback com execCommand é obsoleto mas continua funcionando em todos
+       os browsers atuais, e é o único caminho ali. */
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(MCP_URL).then(feedback).catch(fallback);
+    } else {
+      fallback();
+    }
+
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = MCP_URL;
+      ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); feedback(); } catch (_e) {
+        /* Sem clipboard disponível: seleciona o texto pra cópia manual. */
+        var range = document.createRange();
+        range.selectNodeContents($('mcp-url'));
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+      document.body.removeChild(ta);
+    }
+  }
+
+  /* ── Gate ────────────────────────────────────────────────────────── */
+  function showGateForm() {
+    $('gate').hidden = false;
+    $('gate-checking').hidden = true;
+    $('gate-form').hidden = false;
+    $('app').hidden = true;
+    $('gate-input').focus();
+  }
+
+  function shake() {
+    var row = $('gate-row');
+    row.classList.remove('shake');
+    void row.offsetWidth;
+    row.classList.add('shake');
+  }
+
+  function entrar(pw, vindoDoForm) {
+    SESSION_PW = pw;
+    return buscarUrl().then(function (data) {
+      $('gate').hidden = true;
+      $('app').hidden = false;
+      renderUrl(data);
+    }).catch(function (err) {
+      SESSION_PW = '';
+      if (err.code === 'unauthorized') {
+        if (vindoDoForm) {
+          shake();
+          $('gate-error').textContent = 'senha incorreta';
+          $('gate-input').value = '';
+          $('gate-input').focus();
+        } else {
+          localStorage.removeItem(LS_KEY);
+          $('gate-checking').hidden = true;
+          showGateForm();
+          $('gate-error').textContent = 'sessão expirada — entre novamente';
+        }
+      } else {
+        $('gate-checking').hidden = true;
+        if (!vindoDoForm) showGateForm();
+        $('gate-error').textContent = 'erro de conexão — tente de novo';
+        console.error('[mcp] url', err);
+      }
+      throw err;
+    });
+  }
+
+  function onGateSubmit(e) {
+    e.preventDefault();
+    var pw = $('gate-input').value.trim();
+    if (!pw) return;
+    $('gate-btn').disabled = true;
+    $('gate-error').textContent = '';
+    entrar(pw, true).then(function () {
+      if ($('gate-remember').checked) localStorage.setItem(LS_KEY, pw);
+      else localStorage.removeItem(LS_KEY);
+    }).catch(function () { /* já tratado em entrar() */ })
+      .then(function () { $('gate-btn').disabled = false; });
+  }
+
+  function onLogout() {
+    localStorage.removeItem(LS_KEY);
+    SESSION_PW = '';
+    MCP_URL = '';
+    $('gate-input').value = '';
+    $('gate-remember').checked = false;
+    $('gate-error').textContent = '';
+    showGateForm();
+  }
+
+  function boot() {
+    if (IS_LOCAL_DEV) {
+      showDevBadge();
+      SESSION_PW = 'local-dev';
+      $('gate').hidden = true;
+      $('app').hidden = false;
+      buscarUrl().then(renderUrl);
+      return;
+    }
+
+    var saved = localStorage.getItem(LS_KEY);
+    if (!saved) { showGateForm(); return; }
+
+    $('gate').hidden = false;
+    $('gate-form').hidden = true;
+    $('gate-checking').hidden = false;
+    entrar(saved, false).catch(function () { /* já tratado */ });
+  }
+
+  function init() {
+    if (window.LIFEOS_BLOG) window.LIFEOS_BLOG.aplicar();
+    renderTools();
+    $('gate-form').addEventListener('submit', onGateSubmit);
+    $('logout-btn').addEventListener('click', onLogout);
+    $('mcp-copy').addEventListener('click', copiarUrl);
+    boot();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();

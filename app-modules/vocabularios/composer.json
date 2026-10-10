@@ -1,0 +1,24 @@
+{
+	"name": "modules/vocabularios",
+	"description": "Tags e status configuráveis de todas as tabelas do LifeOS; renomear e contar uso passam pelos consumidores de cada módulo.",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Modules\\Vocabularios\\": "src/",
+			"Modules\\Vocabularios\\Tests\\": "tests/",
+			"Modules\\Vocabularios\\Database\\Factories\\": "database/factories/",
+			"Modules\\Vocabularios\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Modules\\Vocabularios\\Providers\\VocabulariosServiceProvider"
+			]
+		}
+	}
+}

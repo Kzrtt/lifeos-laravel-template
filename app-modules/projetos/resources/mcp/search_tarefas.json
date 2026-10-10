@@ -1,0 +1,49 @@
+{
+  "name": "search_tarefas",
+  "description": "Busca tarefas do LifeOS por nome, projeto, status, tipo e intervalo de data de entrega. Todos os filtros são opcionais e combináveis.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "nome": {
+        "type": "string",
+        "description": "Trecho do nome da tarefa."
+      },
+      "projetos": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Nomes (ou trechos) do projeto vinculado."
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "@@tarefa_status@@"
+        ],
+        "description": "Status exato da tarefa."
+      },
+      "tipo": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "@@tarefa_tipo@@"
+          ]
+        },
+        "description": "Um ou mais tipos -- entra se tiver QUALQUER UM."
+      },
+      "data_entrega_inicio": {
+        "type": "string",
+        "description": "Data de entrega mínima YYYY-MM-DD (inclusive)."
+      },
+      "data_entrega_fim": {
+        "type": "string",
+        "description": "Data de entrega máxima YYYY-MM-DD (inclusive)."
+      },
+      "limit": {
+        "type": "integer",
+        "description": "Máximo de resultados (padrão 20, máximo 50)."
+      }
+    }
+  }
+}

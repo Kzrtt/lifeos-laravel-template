@@ -1,0 +1,25 @@
+{
+  "name": "add_registro",
+  "description": "Acrescenta um registro (um fato datado) a uma memória existente. É a forma normal de a memória crescer. Um registro = um fato autocontido, legível sem o resto da conversa. Não registre o que é efêmero (o que só importa nesta conversa) nem o que já está registrado -- se um fato antigo mudou, corrija-o com update_registro em vez de duplicar.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "memoria": {
+        "type": "string",
+        "description": "Título (exato ou trecho único) ou id da memória."
+      },
+      "texto": {
+        "type": "string",
+        "description": "O fato, em texto corrido (máx. 8000 caracteres)."
+      },
+      "origem": {
+        "type": "string",
+        "description": "Quem está escrevendo: o cliente/harness, ex.: 'claude-code', 'claude.ai'."
+      }
+    },
+    "required": [
+      "memoria",
+      "texto"
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "list_memorias",
+  "description": "Lista o ÍNDICE da memória de longo prazo sobre o usuário: título, categoria, descrição curta e nº de registros de cada memória -- sem o conteúdo. Use para descobrir quais memórias existem e depois abra as relevantes com get_memoria. O mesmo índice já vem nas instruções do servidor ao conectar; chame esta tool para conferir a versão atual.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "categoria": {
+        "type": "string",
+        "enum": [
+          "@@memoria_categoria@@"
+        ],
+        "description": "Filtra por uma categoria (opcional)."
+      }
+    }
+  }
+}

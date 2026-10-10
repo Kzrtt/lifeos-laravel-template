@@ -1,0 +1,952 @@
+[
+  {
+    "name": "search_notas",
+    "description": "Busca notas do LifeOS por nome, projeto(s) vinculado(s), tipo/tags e intervalo de data. Todos os filtros são opcionais e combináveis (AND entre filtros diferentes; arrays usam OR internamente). Sem filtro nenhum, retorna as notas mais recentes. Cada nota já vem com o conteúdo completo em markdown.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "nome": {
+          "type": "string",
+          "description": "Trecho do nome da nota (busca parcial, case-insensitive)."
+        },
+        "projetos": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Nomes (ou trechos) de projetos vinculados -- entra se bater com QUALQUER UM."
+        },
+        "tipo": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Lembranças",
+              "Análise de Leitura",
+              "Pensamentos",
+              "Conclusões",
+              "Úteis",
+              "Faculdade",
+              "Vida",
+              "Pesquisa",
+              "Programação",
+              "Pessoal",
+              "Relato",
+              "Documentação"
+            ]
+          },
+          "description": "Um ou mais tipos/tags -- entra se tiver QUALQUER UM."
+        },
+        "data_inicio": {
+          "type": "string",
+          "description": "Data mínima YYYY-MM-DD (inclusive)."
+        },
+        "data_fim": {
+          "type": "string",
+          "description": "Data máxima YYYY-MM-DD (inclusive)."
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Máximo de resultados (padrão 20, máximo 50; com data_inicio E data_fim, máximo 100)."
+        }
+      }
+    }
+  },
+  {
+    "name": "create_nota",
+    "description": "Cria uma nova nota no LifeOS. A data é sempre a data atual (não é um parâmetro). Todos os outros campos são obrigatórios: nome, tipo/tags, ao menos um projeto vinculado, e o conteúdo completo em markdown.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Nome/título da nota."
+        },
+        "tipo": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Lembranças",
+              "Análise de Leitura",
+              "Pensamentos",
+              "Conclusões",
+              "Úteis",
+              "Faculdade",
+              "Vida",
+              "Pesquisa",
+              "Programação",
+              "Pessoal",
+              "Relato",
+              "Documentação"
+            ]
+          },
+          "minItems": 1,
+          "description": "Um ou mais tipos/tags (vocabulário fixo)."
+        },
+        "projetos": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Nomes de um ou mais projetos existentes aos quais vincular a nota."
+        },
+        "conteudo_md": {
+          "type": "string",
+          "description": "Conteúdo completo da nota, em markdown."
+        }
+      },
+      "required": [
+        "name",
+        "tipo",
+        "projetos",
+        "conteudo_md"
+      ]
+    }
+  },
+  {
+    "name": "update_nota",
+    "description": "Atualiza uma nota existente do LifeOS -- SUBSTITUIÇÃO COMPLETA, não é um patch parcial. Envie TODOS os campos com o valor final desejado, incluindo os que não mudaram (use search_notas antes para recuperar o estado atual da nota). O parâmetro conteudo_md precisa ser o TEXTO INTEIRO e final da nota, em markdown, já com os ajustes aplicados -- nunca um trecho, resumo ou diff do que mudou; enviar só a parte alterada apaga o resto do conteúdo. A data e o histórico de criação da nota não mudam.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "id da nota a editar (retornado por search_notas)."
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome/título final da nota."
+        },
+        "tipo": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Lembranças",
+              "Análise de Leitura",
+              "Pensamentos",
+              "Conclusões",
+              "Úteis",
+              "Faculdade",
+              "Vida",
+              "Pesquisa",
+              "Programação",
+              "Pessoal",
+              "Relato",
+              "Documentação"
+            ]
+          },
+          "minItems": 1,
+          "description": "Conjunto final de tipos/tags -- substitui o atual por completo."
+        },
+        "projetos": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Nomes de TODOS os projetos que a nota deve ter ao final -- substitui os vínculos atuais por completo. Pode ser [] se a nota não deve ficar vinculada a nenhum projeto."
+        },
+        "conteudo_md": {
+          "type": "string",
+          "description": "Texto INTEIRO e final da nota, em markdown -- nunca um trecho, resumo ou diff do que mudou."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "tipo",
+        "projetos",
+        "conteudo_md"
+      ]
+    }
+  },
+  {
+    "name": "search_tarefas",
+    "description": "Busca tarefas do LifeOS por nome, projeto, status, tipo e intervalo de data de entrega. Todos os filtros são opcionais e combináveis.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "nome": {
+          "type": "string",
+          "description": "Trecho do nome da tarefa."
+        },
+        "projetos": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Nomes (ou trechos) do projeto vinculado."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Não Iniciado",
+            "Em Andamento",
+            "Feito"
+          ],
+          "description": "Status exato da tarefa."
+        },
+        "tipo": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Vida",
+              "Organização",
+              "Documentação",
+              "Estudo",
+              "Avaliação",
+              "Código",
+              "Freelance",
+              "Trabalho",
+              "Tarefa"
+            ]
+          },
+          "description": "Um ou mais tipos -- entra se tiver QUALQUER UM."
+        },
+        "data_entrega_inicio": {
+          "type": "string",
+          "description": "Data de entrega mínima YYYY-MM-DD (inclusive)."
+        },
+        "data_entrega_fim": {
+          "type": "string",
+          "description": "Data de entrega máxima YYYY-MM-DD (inclusive)."
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Máximo de resultados (padrão 20, máximo 50)."
+        }
+      }
+    }
+  },
+  {
+    "name": "create_tarefa",
+    "description": "Cria uma nova tarefa no LifeOS. Toda tarefa é obrigatoriamente vinculada a um projeto existente -- use search_projetos antes se não souber o nome exato. status, quando omitido, começa como 'Não Iniciado' (mesmo padrão da tela).",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Nome da tarefa."
+        },
+        "projeto": {
+          "type": "string",
+          "description": "Nome (ou trecho único) do projeto ao qual vincular a tarefa."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Não Iniciado",
+            "Em Andamento",
+            "Feito"
+          ],
+          "description": "Status inicial (padrão: 'Não Iniciado')."
+        },
+        "tipo": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Vida",
+              "Organização",
+              "Documentação",
+              "Estudo",
+              "Avaliação",
+              "Código",
+              "Freelance",
+              "Trabalho",
+              "Tarefa"
+            ]
+          },
+          "description": "Tipos/tags da tarefa (opcional, pode ficar vazio)."
+        },
+        "data_entrega": {
+          "type": "string",
+          "description": "Data de entrega YYYY-MM-DD (opcional)."
+        }
+      },
+      "required": [
+        "name",
+        "projeto"
+      ]
+    }
+  },
+  {
+    "name": "update_tarefa",
+    "description": "Atualiza uma tarefa existente do LifeOS -- PATCH parcial: só os campos enviados mudam, os demais ficam como estão. Inclui trocar o projeto vinculado (envie projeto).",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "id da tarefa a editar (retornado por search_tarefas)."
+        },
+        "name": {
+          "type": "string",
+          "description": "Novo nome da tarefa."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Não Iniciado",
+            "Em Andamento",
+            "Feito"
+          ],
+          "description": "Novo status."
+        },
+        "tipo": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Vida",
+              "Organização",
+              "Documentação",
+              "Estudo",
+              "Avaliação",
+              "Código",
+              "Freelance",
+              "Trabalho",
+              "Tarefa"
+            ]
+          },
+          "description": "Conjunto final de tipos/tags -- substitui o atual por completo (pode ser [])."
+        },
+        "data_entrega": {
+          "type": "string",
+          "description": "Nova data de entrega YYYY-MM-DD, ou \"\"/null pra remover."
+        },
+        "projeto": {
+          "type": "string",
+          "description": "Nome (ou trecho único) do novo projeto ao qual vincular a tarefa -- toda tarefa precisa de um, não pode ficar sem."
+        }
+      },
+      "required": [
+        "id"
+      ]
+    }
+  },
+  {
+    "name": "search_projetos",
+    "description": "Busca projetos do LifeOS por nome, status e tags. Todos os filtros são opcionais e combináveis.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "nome": {
+          "type": "string",
+          "description": "Trecho do nome do projeto."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Não Iniciado",
+            "Em Progresso",
+            "Feito",
+            "Pausado"
+          ],
+          "description": "Status exato do projeto."
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Pessoal",
+              "Profissional",
+              "Acadêmico",
+              "Configuração"
+            ]
+          },
+          "description": "Uma ou mais tags -- entra se tiver QUALQUER UMA."
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Máximo de resultados (padrão 20, máximo 50)."
+        }
+      }
+    }
+  },
+  {
+    "name": "search_eventos",
+    "description": "Busca eventos do calendário do LifeOS por nome, tipo, projeto e intervalo de data. Todos os filtros são opcionais e combináveis.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "nome": {
+          "type": "string",
+          "description": "Trecho do nome do evento."
+        },
+        "tipo": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "faculdade",
+              "trabalho",
+              "lazer",
+              "vida",
+              "psicodelia"
+            ]
+          },
+          "description": "Um ou mais tipos -- entra se tiver QUALQUER UM."
+        },
+        "projetos": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Nomes (ou trechos) do projeto vinculado (nem todo evento tem um)."
+        },
+        "data_inicio": {
+          "type": "string",
+          "description": "Data mínima YYYY-MM-DD (inclusive) -- eventos de vários dias que se SOBREPÕEM ao intervalo também entram, não só os que começam dentro dele."
+        },
+        "data_fim": {
+          "type": "string",
+          "description": "Data máxima YYYY-MM-DD (inclusive)."
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Máximo de resultados (padrão 20, máximo 50)."
+        }
+      }
+    }
+  },
+  {
+    "name": "create_evento",
+    "description": "Cria um novo evento no calendário do LifeOS. date_fim é opcional (só pra eventos de vários dias -- quando enviado, não pode ser anterior a date). projeto é opcional -- nem todo evento pertence a um projeto.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Nome do evento."
+        },
+        "date": {
+          "type": "string",
+          "description": "Data de início, YYYY-MM-DD."
+        },
+        "date_fim": {
+          "type": "string",
+          "description": "Data final YYYY-MM-DD, só para eventos de vários dias (opcional)."
+        },
+        "tipo": {
+          "type": "string",
+          "enum": [
+            "faculdade",
+            "trabalho",
+            "lazer",
+            "vida",
+            "psicodelia"
+          ],
+          "description": "Tipo do evento."
+        },
+        "projeto": {
+          "type": "string",
+          "description": "Nome (ou trecho único) de um projeto vinculado (opcional)."
+        }
+      },
+      "required": [
+        "name",
+        "date",
+        "tipo"
+      ]
+    }
+  },
+  {
+    "name": "update_evento",
+    "description": "Atualiza um evento existente do LifeOS -- PATCH parcial: só os campos enviados mudam. Envie date_fim como \"\" ou null pra remover a data final (voltar a ser evento de um dia só); envie projeto como \"\" ou null pra desvincular do projeto atual.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "id do evento a editar (retornado por search_eventos)."
+        },
+        "name": {
+          "type": "string",
+          "description": "Novo nome do evento."
+        },
+        "date": {
+          "type": "string",
+          "description": "Nova data de início, YYYY-MM-DD."
+        },
+        "date_fim": {
+          "type": "string",
+          "description": "Nova data final YYYY-MM-DD, ou \"\"/null pra remover."
+        },
+        "tipo": {
+          "type": "string",
+          "enum": [
+            "faculdade",
+            "trabalho",
+            "lazer",
+            "vida",
+            "psicodelia"
+          ],
+          "description": "Novo tipo do evento."
+        },
+        "projeto": {
+          "type": "string",
+          "description": "Novo projeto vinculado, ou \"\"/null pra desvincular."
+        }
+      },
+      "required": [
+        "id"
+      ]
+    }
+  },
+  {
+    "name": "search_manifestacoes",
+    "description": "Busca manifestações do LifeOS por nome, status e tags. Todos os filtros são opcionais e combináveis.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "nome": {
+          "type": "string",
+          "description": "Trecho do nome da manifestação."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Não Iniciado",
+            "Em Progresso",
+            "Feito"
+          ],
+          "description": "Status exato."
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Vida",
+              "Financeiro",
+              "Carreira",
+              "Saúde",
+              "Lazer"
+            ]
+          },
+          "description": "Uma ou mais tags -- entra se tiver QUALQUER UMA."
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Máximo de resultados (padrão 20, máximo 50)."
+        }
+      }
+    }
+  },
+  {
+    "name": "search_citacoes",
+    "description": "Lê as citações guardadas no LifeOS (texto + quem disse). Sem filtros devolve todas. Trechos entre *asteriscos* no texto são destaques visuais do app, não parte da frase.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "texto": {
+          "type": "string",
+          "description": "Trecho do texto da citação."
+        },
+        "autor": {
+          "type": "string",
+          "description": "Trecho do nome de quem disse."
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Máximo de resultados (padrão 20, máximo 50)."
+        }
+      }
+    }
+  },
+  {
+    "name": "create_citacao",
+    "description": "Adiciona uma citação ao LifeOS. Ela passa a concorrer ao sorteio do banner do painel. Envolva um trecho em *asteriscos* para destacá-lo (ex.: \"elimine *duas coisas*\") — opcional.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "texto": {
+          "type": "string",
+          "description": "O texto da citação, sem aspas em volta."
+        },
+        "autor": {
+          "type": "string",
+          "description": "Nome de quem disse."
+        }
+      },
+      "required": [
+        "texto",
+        "autor"
+      ]
+    }
+  },
+  {
+    "name": "search_renuncias",
+    "description": "Lê as renúncias do usuário: hábitos que ele cortou e há quanto tempo está sem cada um. Para cada renúncia devolve desde quando (a última vez), o tempo corrido, os marcos de tempo já conquistados (1 dia, 3, 7, 14, 21, 1 mês, 2, 3, 6, 9 meses, 1, 2, 3, 5, 10 anos — mês = 30 dias, ano = 365), o próximo marco com quanto falta e a data em que chega, o nº de recaídas e o recorde. Uma renúncia ARQUIVADA não conta tempo: o usuário parou de acompanhar (em geral voltou ao hábito), então ela vem sem tempo corrido nem marcos — só recaídas e recorde do histórico. Nunca diga que ele está há X tempo sem um hábito arquivado. Sem filtros devolve as ativas, da mais antiga para a mais recente. Só leitura: criar, editar e registrar recaída é pela tela do LifeOS.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "nome": {
+          "type": "string",
+          "description": "Trecho do nome da renúncia (não precisa ser exato)."
+        },
+        "incluir_arquivadas": {
+          "type": "boolean",
+          "description": "Inclui as arquivadas (padrão false)."
+        },
+        "historico": {
+          "type": "boolean",
+          "description": "Inclui a lista de tentativas anteriores (início, fim, duração) de cada renúncia (padrão false)."
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Máximo de resultados (padrão 20, máximo 50)."
+        }
+      }
+    }
+  },
+  {
+    "name": "list_memorias",
+    "description": "Lista o ÍNDICE da memória de longo prazo sobre o usuário: título, categoria, descrição curta e nº de registros de cada memória -- sem o conteúdo. Use para descobrir quais memórias existem e depois abra as relevantes com get_memoria. O mesmo índice já vem nas instruções do servidor ao conectar; chame esta tool para conferir a versão atual.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "categoria": {
+          "type": "string",
+          "enum": [
+            "Perfil",
+            "Preferências",
+            "Projetos",
+            "Referências",
+            "Vida"
+          ],
+          "description": "Filtra por uma categoria (opcional)."
+        }
+      }
+    }
+  },
+  {
+    "name": "get_memoria",
+    "description": "Abre uma ou mais memórias e devolve todos os registros de cada uma, em ordem cronológica, com data e origem. Cada registro reflete o que era verdade QUANDO foi escrito -- confira a data antes de tratar um fato antigo como atual.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "memorias": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Títulos (exatos ou trecho único) ou ids das memórias a abrir."
+        }
+      },
+      "required": [
+        "memorias"
+      ]
+    }
+  },
+  {
+    "name": "create_memoria",
+    "description": "Cria uma memória nova (um TEMA) sobre o usuário. Só use quando nenhuma memória existente cobre o assunto -- se já existir uma, adicione um registro nela com add_registro. O título é único. A descrição é o que aparece no índice: uma ou duas frases dizendo do que a memória trata, pra que um modelo decida se vale abri-la sem ler o conteúdo.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "titulo": {
+          "type": "string",
+          "description": "Título curto e específico (máx. 120 caracteres)."
+        },
+        "descricao": {
+          "type": "string",
+          "description": "Uma ou duas frases sobre do que a memória trata (máx. 400 caracteres)."
+        },
+        "categoria": {
+          "type": "string",
+          "enum": [
+            "Perfil",
+            "Preferências",
+            "Projetos",
+            "Referências",
+            "Vida"
+          ],
+          "description": "Categoria da memória."
+        },
+        "registros": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Registros iniciais -- um fato por item (opcional)."
+        },
+        "origem": {
+          "type": "string",
+          "description": "Quem está escrevendo: o cliente/harness, ex.: 'claude-code', 'claude.ai'."
+        }
+      },
+      "required": [
+        "titulo",
+        "descricao",
+        "categoria"
+      ]
+    }
+  },
+  {
+    "name": "add_registro",
+    "description": "Acrescenta um registro (um fato datado) a uma memória existente. É a forma normal de a memória crescer. Um registro = um fato autocontido, legível sem o resto da conversa. Não registre o que é efêmero (o que só importa nesta conversa) nem o que já está registrado -- se um fato antigo mudou, corrija-o com update_registro em vez de duplicar.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "memoria": {
+          "type": "string",
+          "description": "Título (exato ou trecho único) ou id da memória."
+        },
+        "texto": {
+          "type": "string",
+          "description": "O fato, em texto corrido (máx. 8000 caracteres)."
+        },
+        "origem": {
+          "type": "string",
+          "description": "Quem está escrevendo: o cliente/harness, ex.: 'claude-code', 'claude.ai'."
+        }
+      },
+      "required": [
+        "memoria",
+        "texto"
+      ]
+    }
+  },
+  {
+    "name": "update_memoria",
+    "description": "Atualiza título, descrição e/ou categoria de uma memória -- PATCH parcial: só os campos enviados mudam. Os registros não são tocados.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "memoria": {
+          "type": "string",
+          "description": "Título atual (exato ou trecho único) ou id da memória."
+        },
+        "titulo": {
+          "type": "string",
+          "description": "Novo título."
+        },
+        "descricao": {
+          "type": "string",
+          "description": "Nova descrição."
+        },
+        "categoria": {
+          "type": "string",
+          "enum": [
+            "Perfil",
+            "Preferências",
+            "Projetos",
+            "Referências",
+            "Vida"
+          ],
+          "description": "Nova categoria."
+        }
+      },
+      "required": [
+        "memoria"
+      ]
+    }
+  },
+  {
+    "name": "update_registro",
+    "description": "Corrige o texto de um registro existente (id vem de get_memoria). SUBSTITUIÇÃO: envie o TEXTO INTEIRO e final do registro, nunca só o trecho que mudou. A data original do registro se mantém. Excluir memórias ou registros não é possível por aqui -- só pela tela do LifeOS.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "id do registro (retornado por get_memoria)."
+        },
+        "texto": {
+          "type": "string",
+          "description": "Texto INTEIRO e final do registro."
+        }
+      },
+      "required": [
+        "id",
+        "texto"
+      ]
+    }
+  },
+  {
+    "name": "resumo_financeiro",
+    "description": "Panorama financeiro de um mês (ou comparação de até 12 meses) já AGREGADO com as mesmas regras da tela de Finanças do LifeOS -- use esta tool para qualquer pergunta sobre quanto entrou, saiu, sobrou ou está devendo, em vez de somar linhas de search_movimentacoes (somar linhas cruas conta a compra no crédito e o pagamento da fatura duas vezes). O nome da movimentação É a categoria (não há outro campo); nomes são agrupados sem acento, caixa ou apelido. corre e cogumelo são rateios: a Entrada é a parte dos amigos, não renda. Campos: saidas_caixa = o que saiu do caixa (sem crédito); saidas_com_credito = todas as saídas, INCLUSIVE pagamento de fatura, NÃO mede consumo; consumo_mes = o gasto do mês pela data da compra, sem pagamento de fatura e menos a parte dos amigos nos rateios (use este pra 'quanto gastei'); variavel_mes = consumo_mes menos compromissos; saldo = saldo_abertura + variacao_mes (data futura conta nos totais, não no saldo); fatura_deste_mes = compras no crédito do mês anterior que fecham agora; fatura_projetada = compras no crédito deste mês. parcial = mês corrente, futuro = mês ainda não começado; os dois e os meses antes de inicio_dados ficam fora das médias. entradas_proprias e entradas_por_nome = sem rateios; rateios = entrou, saiu e custo_dono por nome. compromissos / renda_recorrente: com fonte=cadastro, vêm das recorrências que o usuário cadastrou em Finanças (valor fixo ou faixa valor_min/valor_max; valor_tipico = meio da faixa) e o que a heurística acha fora do cadastro vem em sugestoes, fora das contas (vale por direção); com fonte=heuristica, são os nomes presentes em todos os 3 últimos meses completos, até 2x por mês (janela_incompleta no começo dos dados, que usa a janela do primeiro mês com janela cheia: janela_emprestada_de; valor típico = mediana, na renda o mês mais recente). pct_renda em %. sinais = picos de gasto variável (apos_entrada), tickets_repetidos, pontuais (>= 200 com nome novo, nunca compromisso) e consumo_base (consumo sem pontuais). ritmo (mês corrente) = variável até hoje contra a média da janela no mesmo dia (desvio_pct); toda média e comparação é sem pontuais, só fechamento_projetado inclui os pontuais já lançados. por_dia = consumo e variavel de cada dia (data YYYY-MM-DD), com as regras de consumo_mes e variavel_mes (com pontuais), do dia 1 ao fim do mês, ou até hoje no mês corrente. por_nome (mês único) ou comparativo_por_nome na raiz (intervalo). projecao = os 2 meses seguintes ao atual: livre_para_variavel e livre_por_dia, com detalhe e premissas; com faixa no cadastro, cenarios.pessimista/otimista ao lado do provável. Sem parâmetros, resume o mês atual.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "mes": {
+          "type": "string",
+          "description": "Um mês, YYYY-MM."
+        },
+        "de": {
+          "type": "string",
+          "description": "Primeiro mês de um intervalo, YYYY-MM (use com ate)."
+        },
+        "ate": {
+          "type": "string",
+          "description": "Último mês do intervalo, YYYY-MM (máx. 12 meses)."
+        },
+        "incluir_movimentacoes": {
+          "type": "boolean",
+          "description": "Anexa a cada mês lista_movimentacoes (colunas id, data, nome, valor, direcao, meio, marca; o id serve pro update_movimentacao). Máx. 3 meses. Padrão false."
+        }
+      }
+    }
+  },
+  {
+    "name": "search_movimentacoes",
+    "description": "Busca movimentações financeiras do LifeOS por nome, direção (Entrada/Saida), meio de pagamento, intervalo de data e faixa de valor. Todos os filtros são opcionais e combináveis. Serve pra descer ao detalhe (quais lançamentos, de quê); pra totais e saldo, use resumo_financeiro. Com data_inicio E data_fim, o limite sobe pra 300 -- um mês inteiro cabe numa chamada.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "nome": {
+          "type": "string",
+          "description": "Trecho do nome/descrição da movimentação."
+        },
+        "direcao": {
+          "type": "string",
+          "enum": [
+            "Entrada",
+            "Saida"
+          ],
+          "description": "Entrada ou Saida."
+        },
+        "meio": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Crédito",
+              "Débito",
+              "Pix",
+              "Vale",
+              "Boleto"
+            ]
+          },
+          "description": "Um ou mais meios -- entra se tiver QUALQUER UM."
+        },
+        "data_inicio": {
+          "type": "string",
+          "description": "Data mínima YYYY-MM-DD (inclusive)."
+        },
+        "data_fim": {
+          "type": "string",
+          "description": "Data máxima YYYY-MM-DD (inclusive)."
+        },
+        "valor_min": {
+          "type": "number",
+          "description": "Valor mínimo (inclusive)."
+        },
+        "valor_max": {
+          "type": "number",
+          "description": "Valor máximo (inclusive)."
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Máximo de resultados (padrão 20; máximo 50, ou 300 com data_inicio e data_fim)."
+        }
+      }
+    }
+  },
+  {
+    "name": "create_movimentacao",
+    "description": "Cria uma nova movimentação financeira no LifeOS. direcao e meio viram um único campo `tipo` (array) na tabela -- aqui vêm separados, mesmo padrão de search_movimentacoes.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Nome/descrição da movimentação."
+        },
+        "valor": {
+          "type": "number",
+          "description": "Valor (não-negativo)."
+        },
+        "date": {
+          "type": "string",
+          "description": "Data YYYY-MM-DD."
+        },
+        "direcao": {
+          "type": "string",
+          "enum": [
+            "Entrada",
+            "Saida"
+          ],
+          "description": "Entrada ou Saida."
+        },
+        "meio": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Crédito",
+              "Débito",
+              "Pix",
+              "Vale",
+              "Boleto"
+            ]
+          },
+          "description": "Meio(s) de pagamento (opcional, pode ficar vazio)."
+        }
+      },
+      "required": [
+        "name",
+        "valor",
+        "date",
+        "direcao"
+      ]
+    }
+  },
+  {
+    "name": "update_movimentacao",
+    "description": "Atualiza uma movimentação financeira existente -- PATCH parcial: só os campos enviados mudam. direcao e meio são independentes -- enviar só um dos dois mantém o outro como está hoje (os dois juntos formam o `tipo` final na tabela).",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "id da movimentação a editar (retornado por search_movimentacoes)."
+        },
+        "name": {
+          "type": "string",
+          "description": "Novo nome/descrição."
+        },
+        "valor": {
+          "type": "number",
+          "description": "Novo valor (não-negativo)."
+        },
+        "date": {
+          "type": "string",
+          "description": "Nova data YYYY-MM-DD."
+        },
+        "direcao": {
+          "type": "string",
+          "enum": [
+            "Entrada",
+            "Saida"
+          ],
+          "description": "Nova direção (Entrada/Saida)."
+        },
+        "meio": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Crédito",
+              "Débito",
+              "Pix",
+              "Vale",
+              "Boleto"
+            ]
+          },
+          "description": "Novo(s) meio(s) de pagamento."
+        }
+      },
+      "required": [
+        "id"
+      ]
+    }
+  }
+]

@@ -1,0 +1,34 @@
+{
+  "name": "search_manifestacoes",
+  "description": "Busca manifestações do LifeOS por nome, status e tags. Todos os filtros são opcionais e combináveis.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "nome": {
+        "type": "string",
+        "description": "Trecho do nome da manifestação."
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "@@manifestacao_status@@"
+        ],
+        "description": "Status exato."
+      },
+      "tags": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "@@manifestacao_tag@@"
+          ]
+        },
+        "description": "Uma ou mais tags -- entra se tiver QUALQUER UMA."
+      },
+      "limit": {
+        "type": "integer",
+        "description": "Máximo de resultados (padrão 20, máximo 50)."
+      }
+    }
+  }
+}

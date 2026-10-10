@@ -1,0 +1,24 @@
+{
+	"name": "modules/backup",
+	"description": "O .zip de SQL do hub: exporta só as linhas da instância de quem pede.",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Modules\\Backup\\": "src/",
+			"Modules\\Backup\\Tests\\": "tests/",
+			"Modules\\Backup\\Database\\Factories\\": "database/factories/",
+			"Modules\\Backup\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Modules\\Backup\\Providers\\BackupServiceProvider"
+			]
+		}
+	}
+}

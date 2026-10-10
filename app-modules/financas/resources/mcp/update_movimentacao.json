@@ -1,0 +1,45 @@
+{
+  "name": "update_movimentacao",
+  "description": "Atualiza uma movimentação financeira existente -- PATCH parcial: só os campos enviados mudam. direcao e meio são independentes -- enviar só um dos dois mantém o outro como está hoje (os dois juntos formam o `tipo` final na tabela).",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "description": "id da movimentação a editar (retornado por search_movimentacoes)."
+      },
+      "name": {
+        "type": "string",
+        "description": "Novo nome/descrição."
+      },
+      "valor": {
+        "type": "number",
+        "description": "Novo valor (não-negativo)."
+      },
+      "date": {
+        "type": "string",
+        "description": "Nova data YYYY-MM-DD."
+      },
+      "direcao": {
+        "type": "string",
+        "enum": [
+          "@@mov_direcao@@"
+        ],
+        "description": "Nova direção (Entrada/Saida)."
+      },
+      "meio": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "@@mov_meio@@"
+          ]
+        },
+        "description": "Novo(s) meio(s) de pagamento."
+      }
+    },
+    "required": [
+      "id"
+    ]
+  }
+}

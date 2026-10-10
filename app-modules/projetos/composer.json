@@ -1,0 +1,24 @@
+{
+	"name": "modules/projetos",
+	"description": "Projetos e tarefas: a tarefa não existe sem o projeto, então as duas moram juntas.",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Modules\\Projetos\\": "src/",
+			"Modules\\Projetos\\Tests\\": "tests/",
+			"Modules\\Projetos\\Database\\Factories\\": "database/factories/",
+			"Modules\\Projetos\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Modules\\Projetos\\Providers\\ProjetosServiceProvider"
+			]
+		}
+	}
+}

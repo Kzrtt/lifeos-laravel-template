@@ -1,0 +1,42 @@
+{
+  "name": "create_nota",
+  "description": "Cria uma nova nota no LifeOS. A data é sempre a data atual (não é um parâmetro). Todos os outros campos são obrigatórios: nome, tipo/tags, ao menos um projeto vinculado, e o conteúdo completo em markdown.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Nome/título da nota."
+      },
+      "tipo": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "@@nota_tipo@@"
+          ]
+        },
+        "minItems": 1,
+        "description": "Um ou mais tipos/tags (vocabulário fixo)."
+      },
+      "projetos": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "minItems": 1,
+        "description": "Nomes de um ou mais projetos existentes aos quais vincular a nota."
+      },
+      "conteudo_md": {
+        "type": "string",
+        "description": "Conteúdo completo da nota, em markdown."
+      }
+    },
+    "required": [
+      "name",
+      "tipo",
+      "projetos",
+      "conteudo_md"
+    ]
+  }
+}

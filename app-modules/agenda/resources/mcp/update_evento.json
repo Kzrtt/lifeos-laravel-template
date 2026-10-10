@@ -1,0 +1,39 @@
+{
+  "name": "update_evento",
+  "description": "Atualiza um evento existente do LifeOS -- PATCH parcial: só os campos enviados mudam. Envie date_fim como \"\" ou null pra remover a data final (voltar a ser evento de um dia só); envie projeto como \"\" ou null pra desvincular do projeto atual.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "description": "id do evento a editar (retornado por search_eventos)."
+      },
+      "name": {
+        "type": "string",
+        "description": "Novo nome do evento."
+      },
+      "date": {
+        "type": "string",
+        "description": "Nova data de início, YYYY-MM-DD."
+      },
+      "date_fim": {
+        "type": "string",
+        "description": "Nova data final YYYY-MM-DD, ou \"\"/null pra remover."
+      },
+      "tipo": {
+        "type": "string",
+        "enum": [
+          "@@evento_tipo@@"
+        ],
+        "description": "Novo tipo do evento."
+      },
+      "projeto": {
+        "type": "string",
+        "description": "Novo projeto vinculado, ou \"\"/null pra desvincular."
+      }
+    },
+    "required": [
+      "id"
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifeOS · Backup</title>
+<meta name="description" content="Um zip com todos os dados do LifeOS, gerado a partir do hub.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%2308090b'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%2357b8c4' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..600;1,400&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-view="business">
+<header class="site-nav">
+  <a class="brand" href="../index.html"><span class="mark" aria-hidden="true"></span> LifeOS · Mapa do Sistema</a>
+  <span class="crumbs"><a href="../index.html">index</a><span class="sep">/</span>features<span class="sep">/</span>backup</span>
+</header>
+<div class="wrap"><div class="page-head"><div class="kicker">Integração · módulo backup</div>
+<h1>Backup</h1><p class="lede">Um zip com todos os dados do LifeOS, gerado a partir do hub.</p>
+<div class="meta"><span class="status status--built">✅ implementado</span><span class="tag">backup</span><span class="tag">.sql</span><span class="tag">zip</span></div>
+<div class="view-switch" role="group" aria-label="Visão">
+<button type="button" data-view="business" aria-pressed="true">Regra de negócio</button>
+<button type="button" data-view="code" aria-pressed="false">Código</button></div></div>
+<div class="prose">
+<div class="view-business"><h2>O problema</h2><p>Ter uma cópia de tudo que não dependa do servidor estar de pé.</p><h2>As regras</h2><ol class="rules"><li>O backup devolve um arquivo <code>.sql</code> por tabela do tenant, mais a contagem de linhas de cada uma.</li><li><strong>Credenciais entram por padrão</strong>; quem não quiser pede sem elas. Só quem tem a senha mestre gera backup.</li><li>O <strong>.zip é montado no navegador</strong>, sem biblioteca (formato ZIP mínimo, deflate nativo), a partir do texto que o servidor devolve.</li><li>Além do backup sob demanda, há o comando <code>lifeos:dump-banco</code> (dump do Postgres, mantém os N mais recentes, 14 por padrão) para a rotina do servidor.</li><li>O caminho de volta: <code>lifeos:importar-supabase</code> importa uma instância do LifeOS original.</li></ol></div>
+<div class="view-code"><h2>Onde vive no código</h2><div class="table-scroll"><table class=""><thead><tr><th>Item</th><th>Valor</th></tr></thead><tbody><tr><td>Módulo</td><td><code>app-modules/backup</code></td></tr><tr><td>Tabelas</td><td>—</td></tr><tr><td>Endpoints</td><td><code>POST /functions/v1/lifeos-backup</code></td></tr><tr><td>Actions</td><td><code>GerarBackup</code></td></tr></tbody></table></div><p>Comandos: <code>lifeos:dump-banco</code>. Serviços: <code>BackupService</code>, <code>ImportadorSupabase</code>.</p></div>
+</div><div class="pager"><a href="mcp.html">← Servidor MCP</a><span></span></div></div>
+<footer class="site-footer">LifeOS · v0.1.0 · atualizado 2026-10-08</footer>
+<script src="../assets/site-chrome.js" defer></script><script src="../assets/feature-view.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+	"name": "modules/renuncias",
+	"description": "Hábitos cortados: dias sem, tentativas passadas e recaídas.",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Modules\\Renuncias\\": "src/",
+			"Modules\\Renuncias\\Tests\\": "tests/",
+			"Modules\\Renuncias\\Database\\Factories\\": "database/factories/",
+			"Modules\\Renuncias\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Modules\\Renuncias\\Providers\\RenunciasServiceProvider"
+			]
+		}
+	}
+}

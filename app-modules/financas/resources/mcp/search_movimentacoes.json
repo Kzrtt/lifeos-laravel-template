@@ -1,0 +1,50 @@
+{
+  "name": "search_movimentacoes",
+  "description": "Busca movimentações financeiras do LifeOS por nome, direção (Entrada/Saida), meio de pagamento, intervalo de data e faixa de valor. Todos os filtros são opcionais e combináveis. Serve pra descer ao detalhe (quais lançamentos, de quê); pra totais e saldo, use resumo_financeiro. Com data_inicio E data_fim, o limite sobe pra 300 -- um mês inteiro cabe numa chamada.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "nome": {
+        "type": "string",
+        "description": "Trecho do nome/descrição da movimentação."
+      },
+      "direcao": {
+        "type": "string",
+        "enum": [
+          "@@mov_direcao@@"
+        ],
+        "description": "Entrada ou Saida."
+      },
+      "meio": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "@@mov_meio@@"
+          ]
+        },
+        "description": "Um ou mais meios -- entra se tiver QUALQUER UM."
+      },
+      "data_inicio": {
+        "type": "string",
+        "description": "Data mínima YYYY-MM-DD (inclusive)."
+      },
+      "data_fim": {
+        "type": "string",
+        "description": "Data máxima YYYY-MM-DD (inclusive)."
+      },
+      "valor_min": {
+        "type": "number",
+        "description": "Valor mínimo (inclusive)."
+      },
+      "valor_max": {
+        "type": "number",
+        "description": "Valor máximo (inclusive)."
+      },
+      "limit": {
+        "type": "integer",
+        "description": "Máximo de resultados (padrão 20; máximo 50, ou 300 com data_inicio e data_fim)."
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "get_memoria",
+  "description": "Abre uma ou mais memórias e devolve todos os registros de cada uma, em ordem cronológica, com data e origem. Cada registro reflete o que era verdade QUANDO foi escrito -- confira a data antes de tratar um fato antigo como atual.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "memorias": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "minItems": 1,
+        "description": "Títulos (exatos ou trecho único) ou ids das memórias a abrir."
+      }
+    },
+    "required": [
+      "memorias"
+    ]
+  }
+}

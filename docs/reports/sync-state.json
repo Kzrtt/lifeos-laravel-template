@@ -1,0 +1,45 @@
+{
+    "version": 1,
+    "project": "lifeos-template",
+    "current_release": "v0.1.0",
+    "last_sync": {
+        "at": "2026-10-10",
+        "by": "claude-sonnet-5-5",
+        "reports_processed": []
+    },
+    "targets": [
+        {
+            "path": "docs/reports/SISTEMA.md",
+            "role": "overview consolidado (evergreen) do sistema"
+        },
+        {
+            "path": "CLAUDE.md",
+            "role": "regras de ouro + seção Estado atual"
+        },
+        {
+            "path": "docs/dominio/",
+            "role": "regras de negócio por área (um arquivo por área)"
+        },
+        {
+            "path": "docs/README.md",
+            "role": "índice e mapa de leitura da documentação"
+        },
+        {
+            "path": "docs/arquitetura/BANCO.md",
+            "role": "tabela de ownership de tabelas + diagrama ER"
+        }
+    ],
+    "reports": [
+        {
+            "id": "v0.1.0/feat_template-lifeos",
+            "file": "docs/reports/v0.1.0/feat_template-lifeos.md",
+            "title": "Template LifeOS vazio",
+            "delivered_at": "2026-10-10",
+            "status": "pending",
+            "touches": [
+                "docs/reports/SISTEMA.md",
+                "CLAUDE.md"
+            ]
+        }
+    ]
+}

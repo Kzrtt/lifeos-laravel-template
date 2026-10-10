@@ -1,0 +1,24 @@
+{
+	"name": "modules/agenda",
+	"description": "Eventos do calendário do hub.",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Modules\\Agenda\\": "src/",
+			"Modules\\Agenda\\Tests\\": "tests/",
+			"Modules\\Agenda\\Database\\Factories\\": "database/factories/",
+			"Modules\\Agenda\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Modules\\Agenda\\Providers\\AgendaServiceProvider"
+			]
+		}
+	}
+}

@@ -1,0 +1,45 @@
+{
+  "name": "update_tarefa",
+  "description": "Atualiza uma tarefa existente do LifeOS -- PATCH parcial: só os campos enviados mudam, os demais ficam como estão. Inclui trocar o projeto vinculado (envie projeto).",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "description": "id da tarefa a editar (retornado por search_tarefas)."
+      },
+      "name": {
+        "type": "string",
+        "description": "Novo nome da tarefa."
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "@@tarefa_status@@"
+        ],
+        "description": "Novo status."
+      },
+      "tipo": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "@@tarefa_tipo@@"
+          ]
+        },
+        "description": "Conjunto final de tipos/tags -- substitui o atual por completo (pode ser [])."
+      },
+      "data_entrega": {
+        "type": "string",
+        "description": "Nova data de entrega YYYY-MM-DD, ou \"\"/null pra remover."
+      },
+      "projeto": {
+        "type": "string",
+        "description": "Nome (ou trecho único) do novo projeto ao qual vincular a tarefa -- toda tarefa precisa de um, não pode ficar sem."
+      }
+    },
+    "required": [
+      "id"
+    ]
+  }
+}

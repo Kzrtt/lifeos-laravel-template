@@ -1,0 +1,24 @@
+{
+	"name": "modules/tenancy",
+	"description": "O tenant (Entity) — a raiz do multi-tenancy. Cresce para abrigar User, papéis e onboarding quando o sistema precisar.",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Modules\\Tenancy\\": "src/",
+			"Modules\\Tenancy\\Tests\\": "tests/",
+			"Modules\\Tenancy\\Database\\Factories\\": "database/factories/",
+			"Modules\\Tenancy\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Modules\\Tenancy\\Providers\\TenancyServiceProvider"
+			]
+		}
+	}
+}

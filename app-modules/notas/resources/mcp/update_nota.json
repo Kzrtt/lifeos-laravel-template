@@ -1,0 +1,46 @@
+{
+  "name": "update_nota",
+  "description": "Atualiza uma nota existente do LifeOS -- SUBSTITUIÇÃO COMPLETA, não é um patch parcial. Envie TODOS os campos com o valor final desejado, incluindo os que não mudaram (use search_notas antes para recuperar o estado atual da nota). O parâmetro conteudo_md precisa ser o TEXTO INTEIRO e final da nota, em markdown, já com os ajustes aplicados -- nunca um trecho, resumo ou diff do que mudou; enviar só a parte alterada apaga o resto do conteúdo. A data e o histórico de criação da nota não mudam.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "description": "id da nota a editar (retornado por search_notas)."
+      },
+      "name": {
+        "type": "string",
+        "description": "Nome/título final da nota."
+      },
+      "tipo": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "@@nota_tipo@@"
+          ]
+        },
+        "minItems": 1,
+        "description": "Conjunto final de tipos/tags -- substitui o atual por completo."
+      },
+      "projetos": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Nomes de TODOS os projetos que a nota deve ter ao final -- substitui os vínculos atuais por completo. Pode ser [] se a nota não deve ficar vinculada a nenhum projeto."
+      },
+      "conteudo_md": {
+        "type": "string",
+        "description": "Texto INTEIRO e final da nota, em markdown -- nunca um trecho, resumo ou diff do que mudou."
+      }
+    },
+    "required": [
+      "id",
+      "name",
+      "tipo",
+      "projetos",
+      "conteudo_md"
+    ]
+  }
+}

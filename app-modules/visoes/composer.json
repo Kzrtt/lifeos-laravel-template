@@ -1,0 +1,24 @@
+{
+	"name": "modules/visoes",
+	"description": "Filtros salvos de notas e tarefas.",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Modules\\Visoes\\": "src/",
+			"Modules\\Visoes\\Tests\\": "tests/",
+			"Modules\\Visoes\\Database\\Factories\\": "database/factories/",
+			"Modules\\Visoes\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Modules\\Visoes\\Providers\\VisoesServiceProvider"
+			]
+		}
+	}
+}

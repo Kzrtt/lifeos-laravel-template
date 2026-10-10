@@ -1,0 +1,44 @@
+{
+  "name": "create_movimentacao",
+  "description": "Cria uma nova movimentação financeira no LifeOS. direcao e meio viram um único campo `tipo` (array) na tabela -- aqui vêm separados, mesmo padrão de search_movimentacoes.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Nome/descrição da movimentação."
+      },
+      "valor": {
+        "type": "number",
+        "description": "Valor (não-negativo)."
+      },
+      "date": {
+        "type": "string",
+        "description": "Data YYYY-MM-DD."
+      },
+      "direcao": {
+        "type": "string",
+        "enum": [
+          "@@mov_direcao@@"
+        ],
+        "description": "Entrada ou Saida."
+      },
+      "meio": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "@@mov_meio@@"
+          ]
+        },
+        "description": "Meio(s) de pagamento (opcional, pode ficar vazio)."
+      }
+    },
+    "required": [
+      "name",
+      "valor",
+      "date",
+      "direcao"
+    ]
+  }
+}

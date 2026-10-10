@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifeOS · Vocabulários (Tags)</title>
+<meta name="description" content="As listas de status, tipos e meios que o resto do sistema valida — editáveis sem mexer em código.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%2308090b'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%2357b8c4' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..600;1,400&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-view="business">
+<header class="site-nav">
+  <a class="brand" href="../index.html"><span class="mark" aria-hidden="true"></span> LifeOS · Mapa do Sistema</a>
+  <span class="crumbs"><a href="../index.html">index</a><span class="sep">/</span>features<span class="sep">/</span>vocabularios</span>
+</header>
+<div class="wrap"><div class="page-head"><div class="kicker">Núcleo · módulo vocabularios</div>
+<h1>Vocabulários (Tags)</h1><p class="lede">As listas de status, tipos e meios que o resto do sistema valida — editáveis sem mexer em código.</p>
+<div class="meta"><span class="status status--built">✅ implementado</span><span class="tag">tags</span><span class="tag">11 domínios</span><span class="tag">rename</span></div>
+<div class="view-switch" role="group" aria-label="Visão">
+<button type="button" data-view="business" aria-pressed="true">Regra de negócio</button>
+<button type="button" data-view="code" aria-pressed="false">Código</button></div></div>
+<div class="prose">
+<div class="view-business"><h2>O problema</h2><p>Cada lista (status de tarefa, tipo de nota, meio de pagamento…) precisava ser editada em vários lugares. Agora existe uma tabela só e as telas e a validação leem dela.</p><h2>Os onze domínios</h2><div class="table-scroll"><table class=""><thead><tr><th>Domínio</th><th>Alimenta</th><th>Formato</th></tr></thead><tbody><tr><td>nota_tipo</td><td>Notas</td><td>lista</td></tr><tr><td>tarefa_status</td><td>Tarefas</td><td>único</td></tr><tr><td>tarefa_tipo</td><td>Tarefas</td><td>lista</td></tr><tr><td>projeto_status</td><td>Projetos</td><td>único</td></tr><tr><td>projeto_tag</td><td>Projetos</td><td>lista</td></tr><tr><td>evento_tipo</td><td>Eventos (tem cor)</td><td>único</td></tr><tr><td>manifestacao_status</td><td>Manifestações</td><td>único</td></tr><tr><td>manifestacao_tag</td><td>Manifestações</td><td>lista</td></tr><tr><td>mov_direcao</td><td>Finanças</td><td>lista</td></tr><tr><td>mov_meio</td><td>Finanças</td><td>lista</td></tr><tr><td>memoria_categoria</td><td>Memória</td><td>único</td></tr></tbody></table></div><h2>As regras</h2><ol class="rules"><li><strong>Renomear migra os dados.</strong> Trocar “Crédito” por “Cartão” atualiza, numa transação, todas as linhas que usavam o nome antigo — o valor do outro domínio na mesma coluna sobrevive e a ordem é preservada.</li><li><strong>Valores protegidos</strong> (<em>Feito, Em Andamento, Não Iniciado, Em Progresso, Pausado, Entrada, Saida, Crédito</em>) são lidos pela lógica (progresso, kanban, saldo, fatura): podem ser renomeados, mas não apagados.</li><li><strong>Não se apaga valor em uso.</strong> A contagem de uso vem junto da listagem; com uso, a exclusão é recusada em vez de deixar dados órfãos.</li><li><code>mov_direcao</code> e <code>mov_meio</code> gravam na <strong>mesma coluna</strong> de movimentações — o caso que mais exige cuidado em qualquer rename.</li><li>Ordem e cor são do vocabulário: reordenar é uma operação própria; a cor de status segue a posição, não o nome.</li></ol></div>
+<div class="view-code"><h2>Onde vive no código</h2><div class="table-scroll"><table class=""><thead><tr><th>Item</th><th>Valor</th></tr></thead><tbody><tr><td>Módulo</td><td><code>app-modules/vocabularios</code></td></tr><tr><td>Tabelas</td><td><code>lifeos_vocabularios</code></td></tr><tr><td>Endpoints</td><td><code>POST /functions/v1/lifeos-vocabularios</code></td></tr><tr><td>Actions</td><td><code>ListarVocabularios</code>, <code>CriarVocabulario</code>, <code>AtualizarVocabulario</code>, <code>ExcluirVocabulario</code>, <code>ReordenarVocabularios</code></td></tr></tbody></table></div></div>
+</div><div class="pager"><a href="acesso.html">← Acesso e senhas</a><a href="visoes.html">Visões salvas →</a></div></div>
+<footer class="site-footer">LifeOS · v0.1.0 · atualizado 2026-10-08</footer>
+<script src="../assets/site-chrome.js" defer></script><script src="../assets/feature-view.js" defer></script>
+</body>
+</html>

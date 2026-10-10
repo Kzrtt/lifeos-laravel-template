@@ -1,0 +1,24 @@
+{
+	"name": "modules/citacoes",
+	"description": "Citações do banner do hub: texto + autor, sorteadas pelo front.",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Modules\\Citacoes\\": "src/",
+			"Modules\\Citacoes\\Tests\\": "tests/",
+			"Modules\\Citacoes\\Database\\Factories\\": "database/factories/",
+			"Modules\\Citacoes\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Modules\\Citacoes\\Providers\\CitacoesServiceProvider"
+			]
+		}
+	}
+}

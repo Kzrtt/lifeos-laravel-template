@@ -1,0 +1,24 @@
+{
+	"name": "modules/mcp",
+	"description": "O servidor MCP: transporte JSON-RPC, auth por token no path e o registro das tools que cada módulo declara.",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Modules\\Mcp\\": "src/",
+			"Modules\\Mcp\\Tests\\": "tests/",
+			"Modules\\Mcp\\Database\\Factories\\": "database/factories/",
+			"Modules\\Mcp\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Modules\\Mcp\\Providers\\McpServiceProvider"
+			]
+		}
+	}
+}

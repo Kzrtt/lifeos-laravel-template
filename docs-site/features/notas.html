@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifeOS · Notas</title>
+<meta name="description" content="Registros de contexto em markdown — pensamentos, leituras, pesquisas — ligados a quantos projetos fizerem sentido.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%2308090b'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%2357b8c4' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..600;1,400&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-view="business">
+<header class="site-nav">
+  <a class="brand" href="../index.html"><span class="mark" aria-hidden="true"></span> LifeOS · Mapa do Sistema</a>
+  <span class="crumbs"><a href="../index.html">index</a><span class="sep">/</span>features<span class="sep">/</span>notas</span>
+</header>
+<div class="wrap"><div class="page-head"><div class="kicker">Produtividade · módulo notas</div>
+<h1>Notas</h1><p class="lede">Registros de contexto em markdown — pensamentos, leituras, pesquisas — ligados a quantos projetos fizerem sentido.</p>
+<div class="meta"><span class="status status--built">✅ implementado</span><span class="tag">markdown</span><span class="tag">mermaid</span><span class="tag">pdf</span><span class="tag">N:N</span></div>
+<div class="view-switch" role="group" aria-label="Visão">
+<button type="button" data-view="business" aria-pressed="true">Regra de negócio</button>
+<button type="button" data-view="code" aria-pressed="false">Código</button></div></div>
+<div class="prose">
+<div class="view-business"><h2>O problema</h2><p>Guardar contexto que não é tarefa nem evento: análises de leitura, lembranças, documentação. Uma nota não tem ciclo de vida — é só um registro.</p><h2>As regras</h2><ol class="rules"><li>Uma nota tem nome, <strong>tipos</strong> (vocabulário <code>nota_tipo</code>: Lembranças, Análise de Leitura, Pensamentos, Conclusões, Úteis, Faculdade, Vida, Pesquisa, Programação, Pessoal, Relato, Documentação), data opcional e conteúdo em markdown.</li><li>O vínculo com projetos é <strong>N:N</strong>: zero, um ou vários. Ao atualizar, a lista de projetos enviada <em>substitui</em> o conjunto inteiro.</li><li>Excluir uma nota limpa seus vínculos; excluir um projeto remove só o vínculo daquela nota com ele — a nota permanece.</li><li>A data é a <strong>data real do conteúdo</strong>, não a de criação; a lista ordena por data decrescente (sem data por último) e usa a criação só como desempate.</li><li><strong>Diagramas Mermaid</strong>: um bloco <code>```mermaid</code> vira diagrama na tela (hub, notas, tarefas, pré-visualização) e no PDF. Sintaxe incompleta deixa o bloco como código, sem erro.</li><li><strong>Exportar PDF</strong>: impressão nativa do navegador; o PDF espera os diagramas renderizarem e os desenha no tema claro.</li><li>Cada nota tem link próprio (<code>notas.html?nota=&lt;id&gt;</code>) que abre direto na leitura em tela cheia; se a nota não estiver no cache local, a página busca de novo antes de desistir.</li><li>O ↻ do hub é um <strong>reload mestre</strong>: além do cache do hub, preenche os das páginas de detalhe.</li></ol><h2>Planejado <span class="status status--planned">◇ planejado</span></h2><div class="callout planned"><b>Ainda sem código.</b> Decisões já tomadas, mas não implementadas:<ul><li>Resolução de vínculos nota ↔ nota (menções viram link para a nota local).</li><li>Gráficos e estatísticas dentro de <code>notas.html</code> (hoje só o hub mostra a distribuição por tipo).</li></ul></div></div>
+<div class="view-code"><h2>Onde vive no código</h2><div class="table-scroll"><table class=""><thead><tr><th>Item</th><th>Valor</th></tr></thead><tbody><tr><td>Módulo</td><td><code>app-modules/notas</code></td></tr><tr><td>Tabelas</td><td><code>lifeos_notas</code>, <code>lifeos_notas_projetos</code></td></tr><tr><td>Endpoints</td><td><code>POST /functions/v1/lifeos-notas</code></td></tr><tr><td>Actions</td><td><code>ListarNotas</code>, <code>BuscarNotas</code>, <code>CriarNota</code>, <code>AtualizarNota</code>, <code>ExcluirNota</code></td></tr></tbody></table></div><p>Front: <code>public/assets/js/notas.js</code> (página), <code>lifeos.js</code> (hub, somente leitura + detalhe) e <code>mermaid-render.js</code> (diagramas, carregado nas três páginas). Caches de navegador: <code>lifeos_hub_cache</code> e <code>notas_cache</code>.</p><h2>Planejado <span class="status status--planned">◇ planejado</span></h2><div class="callout planned"><b>Ainda sem código.</b> Decisões já tomadas, mas não implementadas:<ul><li>Resolução de vínculos nota ↔ nota (menções viram link para a nota local).</li><li>Gráficos e estatísticas dentro de <code>notas.html</code> (hoje só o hub mostra a distribuição por tipo).</li></ul></div></div>
+</div><div class="pager"><a href="projetos-tarefas.html">← Projetos e Tarefas</a><a href="agenda.html">Agenda (Eventos) →</a></div></div>
+<footer class="site-footer">LifeOS · v0.1.0 · atualizado 2026-10-08</footer>
+<script src="../assets/site-chrome.js" defer></script><script src="../assets/feature-view.js" defer></script>
+</body>
+</html>

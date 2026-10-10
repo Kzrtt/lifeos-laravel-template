@@ -1,0 +1,24 @@
+{
+	"name": "modules/painel",
+	"description": "O hub: views que não pertencem a um domínio só (hub, landing, tutorial, temas) e o lifeos-config.js gerado.",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Modules\\Painel\\": "src/",
+			"Modules\\Painel\\Tests\\": "tests/",
+			"Modules\\Painel\\Database\\Factories\\": "database/factories/",
+			"Modules\\Painel\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Modules\\Painel\\Providers\\PainelServiceProvider"
+			]
+		}
+	}
+}

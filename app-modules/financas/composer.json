@@ -1,0 +1,24 @@
+{
+	"name": "modules/financas",
+	"description": "Movimentações, recorrências, saldo e o webhook de cadastro pelo celular.",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Modules\\Financas\\": "src/",
+			"Modules\\Financas\\Tests\\": "tests/",
+			"Modules\\Financas\\Database\\Factories\\": "database/factories/",
+			"Modules\\Financas\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Modules\\Financas\\Providers\\FinancasServiceProvider"
+			]
+		}
+	}
+}

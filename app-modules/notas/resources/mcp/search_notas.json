@@ -1,0 +1,42 @@
+{
+  "name": "search_notas",
+  "description": "Busca notas do LifeOS por nome, projeto(s) vinculado(s), tipo/tags e intervalo de data. Todos os filtros são opcionais e combináveis (AND entre filtros diferentes; arrays usam OR internamente). Sem filtro nenhum, retorna as notas mais recentes. Cada nota já vem com o conteúdo completo em markdown.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "nome": {
+        "type": "string",
+        "description": "Trecho do nome da nota (busca parcial, case-insensitive)."
+      },
+      "projetos": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Nomes (ou trechos) de projetos vinculados -- entra se bater com QUALQUER UM."
+      },
+      "tipo": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "@@nota_tipo@@"
+          ]
+        },
+        "description": "Um ou mais tipos/tags -- entra se tiver QUALQUER UM."
+      },
+      "data_inicio": {
+        "type": "string",
+        "description": "Data mínima YYYY-MM-DD (inclusive)."
+      },
+      "data_fim": {
+        "type": "string",
+        "description": "Data máxima YYYY-MM-DD (inclusive)."
+      },
+      "limit": {
+        "type": "integer",
+        "description": "Máximo de resultados (padrão 20, máximo 50; com data_inicio E data_fim, máximo 100)."
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "update_memoria",
+  "description": "Atualiza título, descrição e/ou categoria de uma memória -- PATCH parcial: só os campos enviados mudam. Os registros não são tocados.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "memoria": {
+        "type": "string",
+        "description": "Título atual (exato ou trecho único) ou id da memória."
+      },
+      "titulo": {
+        "type": "string",
+        "description": "Novo título."
+      },
+      "descricao": {
+        "type": "string",
+        "description": "Nova descrição."
+      },
+      "categoria": {
+        "type": "string",
+        "enum": [
+          "@@memoria_categoria@@"
+        ],
+        "description": "Nova categoria."
+      }
+    },
+    "required": [
+      "memoria"
+    ]
+  }
+}

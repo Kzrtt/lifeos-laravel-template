@@ -1,0 +1,24 @@
+{
+	"name": "modules/acesso",
+	"description": "Senhas de acesso, escopo de páginas e segredos (token do MCP, PAT) do LifeOS.",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Modules\\Acesso\\": "src/",
+			"Modules\\Acesso\\Tests\\": "tests/",
+			"Modules\\Acesso\\Database\\Factories\\": "database/factories/",
+			"Modules\\Acesso\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Modules\\Acesso\\Providers\\AcessoServiceProvider"
+			]
+		}
+	}
+}

@@ -1,0 +1,40 @@
+{
+  "name": "create_memoria",
+  "description": "Cria uma memória nova (um TEMA) sobre o usuário. Só use quando nenhuma memória existente cobre o assunto -- se já existir uma, adicione um registro nela com add_registro. O título é único. A descrição é o que aparece no índice: uma ou duas frases dizendo do que a memória trata, pra que um modelo decida se vale abri-la sem ler o conteúdo.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "titulo": {
+        "type": "string",
+        "description": "Título curto e específico (máx. 120 caracteres)."
+      },
+      "descricao": {
+        "type": "string",
+        "description": "Uma ou duas frases sobre do que a memória trata (máx. 400 caracteres)."
+      },
+      "categoria": {
+        "type": "string",
+        "enum": [
+          "@@memoria_categoria@@"
+        ],
+        "description": "Categoria da memória."
+      },
+      "registros": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Registros iniciais -- um fato por item (opcional)."
+      },
+      "origem": {
+        "type": "string",
+        "description": "Quem está escrevendo: o cliente/harness, ex.: 'claude-code', 'claude.ai'."
+      }
+    },
+    "required": [
+      "titulo",
+      "descricao",
+      "categoria"
+    ]
+  }
+}

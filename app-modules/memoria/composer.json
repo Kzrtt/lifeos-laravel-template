@@ -1,0 +1,24 @@
+{
+	"name": "modules/memoria",
+	"description": "Memórias de longo prazo e seus registros, compartilhados entre clientes de IA.",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Modules\\Memoria\\": "src/",
+			"Modules\\Memoria\\Tests\\": "tests/",
+			"Modules\\Memoria\\Database\\Factories\\": "database/factories/",
+			"Modules\\Memoria\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Modules\\Memoria\\Providers\\MemoriaServiceProvider"
+			]
+		}
+	}
+}
